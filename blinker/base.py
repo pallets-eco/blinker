@@ -8,11 +8,11 @@ each manages its own receivers and message emission.
 The :func:`signal` function provides singleton behavior for named signals.
 
 """
-from collections import defaultdict
 from weakref import WeakValueDictionary
 
 from blinker._utilities import (
     WeakTypes,
+    defaultdict,
     hashable_identity,
     reference,
     symbol,
@@ -61,7 +61,10 @@ class Signal(object):
             receiver_ref.receiver_id = receiver_id
         else:
             receiver_ref = receiver
-        sender_id = ANY_ID if sender is ANY else hashable_identity(sender)
+        if sender is ANY:
+            sender_id = ANY_ID
+        else:
+            sender_id = hashable_identity(sender)
 
         self.receivers.setdefault(receiver_id, receiver_ref)
         self._by_sender[sender_id].add(receiver_id)
@@ -159,7 +162,10 @@ class Signal(object):
 
     def disconnect(self, receiver, sender=ANY):
         """Disconnect *receiver* from this signal's events."""
-        sender_id = ANY_ID if sender is ANY else hashable_identity(sender)
+        if sender is ANY:
+            sender_id = ANY_ID
+        else:
+            sender_id = hashable_identity(sender)
         receiver_id = hashable_identity(receiver)
         self._disconnect(receiver_id, sender_id)
 
