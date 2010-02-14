@@ -1,5 +1,6 @@
 include LICENSE
 include README
 include AUTHORS
+include CHANGES
 recursive-include tests *py
 
