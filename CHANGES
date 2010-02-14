@@ -2,6 +2,14 @@
 Blinker Changelog
 =================
 
+Version 0.9
+-----------
+
+Not yet released
+
+- Added ``Signal.temporarily_connected_to`` context manager
+
+
 Version 0.8
 -----------
 

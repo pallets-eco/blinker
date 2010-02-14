@@ -57,6 +57,16 @@ except:
                                             dict.__repr__(self))
 
 
+try:
+    from contextlib import contextmanager
+except ImportError:
+    def contextmanager(fn):
+        def oops(*args, **kw):
+            raise RuntimeError("Python 2.5 or above is required to use "
+                               "context managers.")
+        oops.__name__ = fn.__name__
+        return oops
+
 class _symbol(object):
 
     def __init__(self, name):

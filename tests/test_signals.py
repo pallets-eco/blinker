@@ -1,3 +1,4 @@
+import sys
 import blinker
 from nose.tools import assert_raises
 
@@ -233,3 +234,10 @@ def test_named_blinker():
 def values_are_empty_sets_(dictionary):
     for val in dictionary.values():
         assert val == set()
+
+if sys.version_info < (2, 5):
+    def test_context_manager_warning():
+        sig = blinker.Signal()
+        receiver = lambda sender: None
+
+        assert_raises(RuntimeError, sig.temporarily_connected_to, receiver)

@@ -12,6 +12,7 @@ from weakref import WeakValueDictionary
 
 from blinker._utilities import (
     WeakTypes,
+    contextmanager,
     defaultdict,
     hashable_identity,
     reference,
@@ -93,6 +94,32 @@ class Signal(object):
                 self.disconnect(receiver, sender)
                 raise
         return receiver
+
+    @contextmanager
+    def temporarily_connected_to(self, receiver, sender=ANY):
+        """Execute a block with the signal connected *receiver*.
+
+        This is a context manager for use in the ``with`` statement, and can
+        be useful in unit tests.  *receiver* is connected to the signal for
+        the duration of the ``with`` block, and will be disconnected
+        automatically when exiting the block::
+
+          ready = Signal()
+          receiver = lambda sender: pass
+
+          with ready.temporarily_connected_to(receiver):
+             # do stuff
+             ready.send(123)
+
+        """
+        self.connect(receiver, sender=sender, weak=False)
+        try:
+            yield None
+        except:
+            self.disconnect(receiver)
+            raise
+        else:
+            self.disconnect(receiver)
 
     def send(self, *sender, **kwargs):
         """Emit this signal on behalf of *sender*, passing on \*\*kwargs.
