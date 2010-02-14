@@ -15,3 +15,6 @@ __all__ = [
     'receiver_connected',
     'signal',
     ]
+
+
+__version__ = '0.8'

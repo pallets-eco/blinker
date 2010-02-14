@@ -1,22 +1,19 @@
-"""
-blinker
-~~~~~~~
+from distutils.core import setup
 
-
-"""
-from distutils.tools import setup
-
+readme = open('README').read()
+import blinker
+version = blinker.__version__
 
 setup(name="blinker",
-      version="0.8",
+      version=version,
       packages=['blinker'],
       author='Jason Kirtland',
       author_email='jek@discorporate.us',
-      description='fast and simple object-to-object and broadcast signalling',
+      description='Fast, simple object-to-object and broadcast signaling',
       keywords='signal emit events broadcast',
-      long_description=__doc__,
+      long_description=readme,
       license='MIT License',
-      url='http://discorporate.us/jek/projects/blinker/',
+      url='http://bitbucket.org/jek/blinker/',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',

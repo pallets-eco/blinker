@@ -4,3 +4,6 @@ syntax: glob
 nosetests3
 bench
 *.py?
+build
+dist
+MANIFEST
