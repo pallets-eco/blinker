@@ -1,0 +1,6 @@
+syntax: glob
+
+.coverage
+nosetests3
+bench
+*.py?
