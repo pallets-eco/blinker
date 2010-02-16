@@ -21,35 +21,49 @@ from blinker._utilities import (
 
 
 ANY = symbol('ANY')
+ANY.__doc__ = 'Token for "any sender".'
 ANY_ID = 0
 
 
 class Signal(object):
-    """A generic notification emitter."""
+    """A notification emitter."""
 
-    #: A convenience for importers, allows Signal.ANY
+    #: An :obj:`ANY` convenience synonym, allows ``Signal.ANY``
+    #: without an additional import.
     ANY = ANY
 
     def __init__(self, doc=None):
+        """
+        :param doc: optional.  If provided, will be assigned to the signal's
+          __doc__ attribute.
+
+        """
         if doc:
             self.__doc__ = doc
+        #: A mapping of connected receivers.
+        #:
+        #: The values of this mapping are not meaningful outside of the
+        #: internal :class:`Signal` implementation, however the boolean value
+        #: of the mapping is useful as an extremely efficient check to see if
+        #: any receivers are connected to the signal.
         self.receivers = {}
         self._by_receiver = defaultdict(set)
         self._by_sender = defaultdict(set)
         self._weak_senders = {}
 
     def connect(self, receiver, sender=ANY, weak=True):
-        """Connect *receiver* to signal events send by *sender*.
+        """Connect *receiver* to signal events sent by *sender*.
 
-        :param receiver: A callable.  Will be invoked by :meth:`send`.  Will
-          be invoked with `sender=` as a named argument and any \*\*kwargs
-          that were provided to a call to :meth:`send`.
+        :param receiver: A callable.  Will be invoked by :meth:`send` with
+          `sender=` as a single positional argument and any \*\*kwargs that
+          were provided to a call to :meth:`send`.
 
-        :param sender: Any object or :attr:`Signal.ANY`.  Restricts
-          notifications to *receiver* to only those :meth:`send` emissions
-          sent by *sender*.  If ``ANY``, the receiver will always be
-          notified.  A *receiver* may be connected to multiple *sender* on
-          the same Signal.  Defaults to ``ANY``.
+        :param sender: Any object or :obj:`ANY`, defaults to ``ANY``.
+          Restricts notifications delivered to *receiver* to only those
+          :meth:`send` emissions sent by *sender*.  If ``ANY``, the receiver
+          will always be notified.  A *receiver* may be connected to
+          multiple *sender* values on the same Signal through multiple calls
+          to :meth:`connect`.
 
         :param weak: If true, the Signal will hold a weakref to *receiver*
           and automatically disconnect when *receiver* goes out of scope or
@@ -99,17 +113,27 @@ class Signal(object):
     def temporarily_connected_to(self, receiver, sender=ANY):
         """Execute a block with the signal connected *receiver*.
 
-        This is a context manager for use in the ``with`` statement, and can
+        :param receiver: a receiver callable
+        :param sender: optional, a sender to filter on
+
+        This is a context manager for use in the ``with`` statement. It can
         be useful in unit tests.  *receiver* is connected to the signal for
         the duration of the ``with`` block, and will be disconnected
-        automatically when exiting the block::
+        automatically when exiting the block:
 
-          ready = Signal()
-          receiver = lambda sender: pass
+        .. testsetup::
 
-          with ready.temporarily_connected_to(receiver):
+          from blinker import Signal
+          on_ready = Signal()
+          receiver = lambda sender: None
+
+        .. testcode::
+
+          with on_ready.temporarily_connected_to(receiver):
              # do stuff
-             ready.send(123)
+             on_ready.send(123)
+
+        .. versionadded:: 0.9
 
         """
         self.connect(receiver, sender=sender, weak=False)
@@ -128,7 +152,7 @@ class Signal(object):
         value. The ordering of receiver notification is undefined.
 
         :param \*sender: Any object or ``None``.  If omitted, synonymous
-        with ``None``.  Only accepts one positional argument.
+          with ``None``.  Only accepts one positional argument.
 
         :param \*\*kwargs: Data to be sent to receivers.
 
@@ -152,8 +176,8 @@ class Signal(object):
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
 
-        Performs an optimistic check for receivers only.  Does not guarantee
-        that all weakly referenced receivers are still alive.  See
+        Performs an optimistic check only.  Does not guarantee that all
+        weakly referenced receivers are still alive.  See
         :meth:`receivers_for` for a stronger search.
 
         """
@@ -188,7 +212,14 @@ class Signal(object):
                 yield receiver
 
     def disconnect(self, receiver, sender=ANY):
-        """Disconnect *receiver* from this signal's events."""
+        """Disconnect *receiver* from this signal's events.
+
+        :param receiver: a previously :meth:`connected<connect>` callable
+
+        :param sender: a specific sender to disconnect from, or :obj:`ANY`
+          to disconnect from all senders.  Defaults to ``ANY``.
+
+        """
         if sender is ANY:
             sender_id = ANY_ID
         else:
@@ -225,7 +256,15 @@ class Signal(object):
         self._by_receiver.clear()
 
 
-receiver_connected = Signal()
+receiver_connected = Signal("""\
+Sent by a :class:`Signal` after a receiver connects.
+
+:argument: the Signal that was connected to
+:keyword receiver_arg: the connected receiver
+:keyword sender_arg: the sender to connect to
+:keyword weak_arg: true if the connection to receiver_arg is a weak reference
+
+""")
 
 
 class NamedSignal(Signal):
@@ -233,6 +272,8 @@ class NamedSignal(Signal):
 
     def __init__(self, name, doc=None):
         Signal.__init__(self, doc)
+
+        #: The name of this signal.
         self.name = name
 
     def __repr__(self):
@@ -241,9 +282,14 @@ class NamedSignal(Signal):
 
 
 class Namespace(WeakValueDictionary):
+    """A mapping of signal names to signals."""
 
     def signal(self, name, doc=None):
-        """Return the :class:`NamedSignal` *name*, creating it if required."""
+        """Return the :class:`NamedSignal` *name*, creating it if required.
+
+        Repeated calls to this function will return the same signal object.
+
+        """
         try:
             return self[name]
         except KeyError:

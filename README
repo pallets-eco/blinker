@@ -7,22 +7,32 @@ interested parties to subscribe to events, or "signals".
 Signal receivers can subscribe to specific senders or receive signals
 sent by any sender.
 
-  >>> from blinker import Signal
-  >>> signal = Signal('round_started')
+  >>> from blinker import signal
+  >>> started = signal('round-started')
   >>> def each(round):
   ...     print "Round %s!" % round
   ...
-  >>> signal.connect(each)
+  >>> started.connect(each)
+
   >>> def round_two(round):
   ...     print "This is round two."
   ...
-  >>> signal.connect(round_two, sender=2)
+  >>> started.connect(round_two, sender=2)
 
   >>> for round in range(1, 4):
-  ...     signal.send(round)
+  ...     started.send(round)
   ...
   Round 1!
   Round 2!
   This is round two.
   Round 3!
 
+Changelog Summary
+-----------------
+
+0.9 (development)
+ - Sphinx docs
+
+0.8 (February 14, 2010)
+ - First independent release separate from flatland
+ - "sender" is now a positional, not keyword, argument
