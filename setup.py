@@ -13,7 +13,7 @@ setup(name="blinker",
       keywords='signal emit events broadcast',
       long_description=readme,
       license='MIT License',
-      url='http://bitbucket.org/jek/blinker/',
+      url='http://discorporate.us/projects/Blinker/',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',

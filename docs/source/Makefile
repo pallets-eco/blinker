@@ -5,9 +5,11 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 VERSION      ?= tip
+RELEASE      ?= $(VERSION)
 
 # Internal variables.
-ALLSPHINXOPTS   = -d ../doctrees $(SPHINXOPTS) .
+ALLSPHINXOPTS   = -D version=$(VERSION) -D release=$(RELEASE) \
+   -d ../doctrees $(SPHINXOPTS) .
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -49,5 +51,4 @@ website:
 	mkdir -p ../website ../doctrees
 	$(SPHINXBUILD) -b discorporate \
            -D html_theme=discorporate \
-           -D version=$(VERSION) \
            $(ALLSPHINXOPTS) ../website

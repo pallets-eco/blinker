@@ -5,9 +5,10 @@ Blinker Changelog
 Version 0.9
 -----------
 
-Not yet released
+Released February 26, 2010
 
 - Added ``Signal.temporarily_connected_to`` context manager
+- Docs!  Sphinx docs, project web site.
 
 
 Version 0.8
