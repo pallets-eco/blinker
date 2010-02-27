@@ -4,6 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
+VERSION      ?= tip
 
 # Internal variables.
 ALLSPHINXOPTS   = -d ../doctrees $(SPHINXOPTS) .
@@ -20,7 +21,7 @@ help:
 sdist: clean text html
 
 clean:
-	for i in doctrees html text doctest pickles; do \
+	for i in doctrees html text doctest pickles website; do \
 	    rm -rf ../$$i; \
         done
 
@@ -43,3 +44,10 @@ doctest:
 pickles:
 	mkdir -p ../pickles ../doctest
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) ../pickles
+
+website:
+	mkdir -p ../website ../doctrees
+	$(SPHINXBUILD) -b discorporate \
+           -D html_theme=discorporate \
+           -D version=$(VERSION) \
+           $(ALLSPHINXOPTS) ../website
