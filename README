@@ -30,6 +30,9 @@ sent by any sender.
 Changelog Summary
 -----------------
 
+1.0 (March 28, 2010)
+ - Python 3.x compatibility
+
 0.9 (February 26, 2010)
  - Sphinx docs, project website
  - Added ``with a_signal.temporarily_connected_to(receiver): ...`` support

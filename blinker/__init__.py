@@ -17,4 +17,4 @@ __all__ = [
     ]
 
 
-__version__ = '0.10dev'
+__version__ = '1.0'
