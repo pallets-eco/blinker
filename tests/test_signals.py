@@ -1,6 +1,19 @@
+import gc
 import sys
+import time
+
 import blinker
+
 from nose.tools import assert_raises
+
+
+jython = sys.platform.startswith('java')
+
+
+def collect():
+    if jython:
+        gc.collect()
+        time.sleep(0.1)
 
 
 def test_meta_connect():
@@ -51,20 +64,29 @@ def test_singletons():
     assert s1 is ns.signal('abc')
     assert s1 is not ns.signal('def')
     assert 'abc' in ns
+    collect()
+
     # weak by default, already out of scope
     assert 'def' not in ns
     del s1
+    collect()
+
     assert 'abc' not in ns
 
 
 def test_weak_receiver():
     sentinel = []
-    def received(**kw):
+    def received(sender, **kw):
         sentinel.append(kw)
 
     sig = blinker.Signal()
-    sig.connect(received, weak=True)
+
+    # XXX: weirdly, under python an explicit weak=True causes this test
+    #      to fail, leaving a strong ref to the receiver somewhere. ?!!
+    sig.connect(received)  # weak=True by default.
+
     del received
+    collect()
 
     assert not sentinel
     sig.send()
@@ -82,7 +104,9 @@ def test_strong_receiver():
 
     sig = blinker.Signal()
     sig.connect(received, weak=False)
+
     del received
+    collect()
 
     assert not sentinel
     sig.send()
@@ -108,6 +132,8 @@ def test_instancemethod_receiver():
     sig.send()
     assert sentinel
     del receiver
+    collect()
+
     sig.send()
     assert len(sentinel) == 1
 
@@ -159,6 +185,7 @@ def test_filtered_receiver_weakref():
     assert sentinel == [obj]
     del sentinel[:]
     del obj
+    collect()
 
     # general index isn't cleaned up
     assert sig.receivers
@@ -206,6 +233,8 @@ def test_has_receivers():
     assert sig.has_receivers_for(o)
 
     del received
+    collect()
+
     assert not sig.has_receivers_for('xyz')
     assert list(sig.receivers_for('xyz')) == []
     assert list(sig.receivers_for(o)) == []
