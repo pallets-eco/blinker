@@ -18,7 +18,7 @@ The core of Blinker is quite small but provides powerful features:
 Requirements
 ------------
 
-Python 2.4 or later; Python 3.0 or later.
+Python 2.4 or later; Python 3.0 or later; or Jython 2.5 or later.
 
 No other modules are required.
 
