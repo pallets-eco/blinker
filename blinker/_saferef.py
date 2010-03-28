@@ -34,9 +34,10 @@
 #
 """Refactored 'safe reference from dispatcher.py"""
 
-import weakref
+import operator
 import sys
 import traceback
+import weakref
 
 
 try:
@@ -44,6 +45,14 @@ try:
 except NameError:
     def callable(object):
         return hasattr(object, '__call__')
+
+
+if sys.version_info < (3,):
+    get_self = operator.attrgetter('im_self')
+    get_func = operator.attrgetter('im_func')
+else:
+    get_self = operator.attrgetter('__self__')
+    get_func = operator.attrgetter('__func__')
 
 
 def safe_ref(target, on_delete=None):
@@ -58,21 +67,22 @@ def safe_ref(target, on_delete=None):
       scope with the reference object, (either a weakref or a
       BoundMethodWeakref) as argument.
     """
-    if hasattr(target, 'im_self'):
-        if target.im_self is not None:
+    try:
+        im_self = get_self(target)
+    except AttributeError:
+        if callable(on_delete):
+            return weakref.ref(target, on_delete)
+        else:
+            return weakref.ref(target)
+    else:
+        if im_self is not None:
             # Turn a bound method into a BoundMethodWeakref instance.
             # Keep track of these instances for lookup by disconnect().
-            assert hasattr(target, 'im_func'), (
+            assert hasattr(target, 'im_func') or hasattr(target, '__func__'), (
                 "safe_ref target %r has im_self, but no im_func, "
-                "don't know how to create reference"
-                % target
-                )
+                "don't know how to create reference" % target)
             reference = BoundMethodWeakref(target=target, on_delete=on_delete)
             return reference
-    if callable(on_delete):
-        return weakref.ref(target, on_delete)
-    else:
-        return weakref.ref(target)
 
 
 class BoundMethodWeakref(object):
@@ -170,10 +180,12 @@ class BoundMethodWeakref(object):
                                'cleanup function %s: %s' % (self, function, e))
         self.deletion_methods = [on_delete]
         self.key = self.calculate_key(target)
-        self.weak_self = weakref.ref(target.im_self, remove)
-        self.weak_func = weakref.ref(target.im_func, remove)
-        self.self_name = str(target.im_self)
-        self.func_name = str(target.im_func.__name__)
+        im_self = get_self(target)
+        im_func = get_func(target)
+        self.weak_self = weakref.ref(im_self, remove)
+        self.weak_func = weakref.ref(im_func, remove)
+        self.self_name = str(im_self)
+        self.func_name = str(im_func.__name__)
 
     def calculate_key(cls, target):
         """Calculate the reference key for this reference.
@@ -181,7 +193,7 @@ class BoundMethodWeakref(object):
         Currently this is a two-tuple of the id()'s of the target
         object and the target function respectively.
         """
-        return (id(target.im_self), id(target.im_func))
+        return (id(get_self(target)), id(get_func(target)))
     calculate_key = classmethod(calculate_key)
 
     def __str__(self):

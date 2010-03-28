@@ -99,9 +99,9 @@ class TestSaferef(unittest.TestCase):
             sd[s] = 1
         for t in self.ts:
             if hasattr(t, 'x'):
-                assert sd.has_key(safe_ref(t.x))
+                assert safe_ref(t.x) in sd
             else:
-                assert sd.has_key(safe_ref(t))
+                assert safe_ref(t) in sd
 
     def test_Representation(self):
         """Test that the reference object's representation works
@@ -114,4 +114,3 @@ class TestSaferef(unittest.TestCase):
     def _closure(self, ref):
         """Dumb utility mechanism to increment deletion counter"""
         self.closure_count += 1
-
