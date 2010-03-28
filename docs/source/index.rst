@@ -18,10 +18,9 @@ The core of Blinker is quite small but provides powerful features:
 Requirements
 ------------
 
-Python 2.4 or later.  No other modules are required.
+Python 2.4 or later; Python 3.0 or later.
 
-As of Blinker 0.8, Python 3.1 passes all tests except for weakly
-binding to instance methods.
+No other modules are required.
 
 
 License
