@@ -81,9 +81,13 @@ def test_weak_receiver():
 
     sig = blinker.Signal()
 
-    # XXX: weirdly, under python an explicit weak=True causes this test
-    #      to fail, leaving a strong ref to the receiver somewhere. ?!!
-    sig.connect(received)  # weak=True by default.
+    # XXX: weirdly, under jython an explicit weak=True causes this test
+    #      to fail, leaking a strong ref to the receiver somewhere.
+    #      http://bugs.jython.org/issue1586
+    if jython:
+        sig.connect(received)  # weak=True by default.
+    else:
+        sig.connect(received, weak=True)
 
     del received
     collect()
