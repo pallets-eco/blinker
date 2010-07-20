@@ -8,6 +8,7 @@ each manages its own receivers and message emission.
 The :func:`signal` function provides singleton behavior for named signals.
 
 """
+from warnings import warn
 from weakref import WeakValueDictionary
 
 from blinker._utilities import (
@@ -110,30 +111,31 @@ class Signal(object):
         return receiver
 
     @contextmanager
-    def temporarily_connected_to(self, receiver, sender=ANY):
-        """Execute a block with the signal connected *receiver*.
+    def connected_to(self, receiver, sender=ANY):
+        """Execute a block with the signal temporarily connected to *receiver*.
 
         :param receiver: a receiver callable
         :param sender: optional, a sender to filter on
 
-        This is a context manager for use in the ``with`` statement. It can
+        This is a context manager for use in the ``with`` statement.  It can
         be useful in unit tests.  *receiver* is connected to the signal for
         the duration of the ``with`` block, and will be disconnected
         automatically when exiting the block:
 
         .. testsetup::
 
+          from __future__ import with_statement
           from blinker import Signal
           on_ready = Signal()
           receiver = lambda sender: None
 
         .. testcode::
 
-          with on_ready.temporarily_connected_to(receiver):
+          with on_ready.connected_to(receiver):
              # do stuff
              on_ready.send(123)
 
-        .. versionadded:: 0.9
+        .. versionadded:: 1.1
 
         """
         self.connect(receiver, sender=sender, weak=False)
@@ -144,6 +146,25 @@ class Signal(object):
             raise
         else:
             self.disconnect(receiver)
+
+    def temporarily_connected_to(self, receiver, sender=ANY):
+        """An alias for :meth:`connected_to`.
+
+        :param receiver: a receiver callable
+        :param sender: optional, a sender to filter on
+
+        .. versionadded:: 0.9
+
+        .. versionchanged:: 1.1
+
+          In version 1.1, this method was renamed to :meth:`connected_to`.
+          The original name will be deprecated in 1.2 and removed in 1.3.
+
+        """
+        warn("temporarily_connected_to is deprecated; "
+             "use connected_to instead.",
+             PendingDeprecationWarning)
+        return self.connected_to(receiver, sender)
 
     def send(self, *sender, **kwargs):
         """Emit this signal on behalf of *sender*, passing on \*\*kwargs.
