@@ -184,7 +184,19 @@ be used as a decorator on functions:
 
 While convenient, this form unfortunately does not allow the
 ``sender`` or ``weak`` arguments to be customized for the connected
-function.
+function.  For this, :meth:`~Signal.connect_via` can be used:
+
+.. doctest::
+
+  >>> dice_roll = signal('dice_roll')
+  >>> @dice_roll.connect_via(1)
+  ... @dice_roll.connect_via(3)
+  ... @dice_roll.connect_via(5)
+  ... def odd_subscriber(sender):
+  ...     print("Observed dice roll %r." % sender)
+  ...
+  >>> result = dice_roll.send(3)
+  Observed dice roll 3.
 
 
 Optimizing Signal Sending
