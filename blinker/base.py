@@ -156,9 +156,8 @@ class Signal(object):
         .. versionadded:: 0.9
 
         .. versionchanged:: 1.1
-
-          In version 1.1, this method was renamed to :meth:`connected_to`.
-          The original name will be deprecated in 1.2 and removed in 1.3.
+          Renamed to :meth:`connected_to`.  ``temporarily_connected_to``
+          will be deprecated in 1.2 and removed in a subsequent version.
 
         """
         warn("temporarily_connected_to is deprecated; "
