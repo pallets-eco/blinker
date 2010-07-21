@@ -2,6 +2,16 @@
 Blinker Changelog
 =================
 
+Version 1.1
+-----------
+
+Released July 21, 2010
+
+- Added ``@signal.connect_via(sender)`` decorator
+- Added ``signal.connected_to`` shorthand name for the
+  ``temporarily_connected_to`` context manager.
+
+
 Version 1.0
 -----------
 
