@@ -2,6 +2,17 @@
 Blinker Changelog
 =================
 
+
+Version 1.2
+-----------
+
+Unreleased.
+
+- Added Signal.receiver_connected and
+  Signal.receiver_disconnected per-Signal signals.
+- Deprecated the global 'receiver_connected' signal.
+- Verified Python 3.2 support (no changes needed!)
+
 Version 1.1
 -----------
 

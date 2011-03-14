@@ -16,6 +16,7 @@ from blinker._utilities import (
     contextmanager,
     defaultdict,
     hashable_identity,
+    lazy_property,
     reference,
     symbol,
     )
@@ -32,6 +33,42 @@ class Signal(object):
     #: An :obj:`ANY` convenience synonym, allows ``Signal.ANY``
     #: without an additional import.
     ANY = ANY
+
+    @lazy_property
+    def receiver_connected(self):
+        """Emitted after each :meth:`connect`.
+
+        The signal sender is the signal instance, and the :meth:`connect`
+        arguments are passed through: *receiver*, *sender*, and *weak*.
+
+        .. versionadded:: 1.2
+
+        """
+        return Signal(doc="Emitted after a receiver connects.")
+
+    @lazy_property
+    def receiver_disconnected(self):
+        """Emitted after :meth:`disconnect`.
+
+        The sender is the signal instance, and the :meth:`disconnect` arguments
+        are passed through: *receiver* and *sender*.
+
+        Note, this signal is emitted **only** when :meth:`disconnect` is
+        called explicitly.
+
+        The disconnect signal can not be emitted by an automatic disconnect
+        (due to a weakly referenced receiver or sender going out of scope),
+        as the receiver and/or sender instances are no longer available for
+        use at the time this signal would be emitted.
+
+        An alternative approach is available by subscribing to
+        :attr:`receiver_connected` and setting up a custom weakref cleanup
+        callback on weak receivers and senders.
+
+        .. versionadded:: 1.2
+
+        """
+        return Signal(doc="Emitted after a receiver disconnects.")
 
     def __init__(self, doc=None):
         """
@@ -99,6 +136,16 @@ class Signal(object):
                 del sender_ref
 
         # broadcast this connection.  if receivers raise, disconnect.
+        if ('receiver_connected' in self.__dict__ and
+            self.receiver_connected.receivers):
+            try:
+                self.receiver_connected.send(self,
+                                             receiver=receiver,
+                                             sender=sender,
+                                             weak=weak)
+            except:
+                self.disconnect(receiver, sender)
+                raise
         if receiver_connected.receivers and self is not receiver_connected:
             try:
                 receiver_connected.send(self,
@@ -273,6 +320,12 @@ class Signal(object):
         receiver_id = hashable_identity(receiver)
         self._disconnect(receiver_id, sender_id)
 
+        if ('receiver_disconnected' in self.__dict__ and
+            self.receiver_disconnected.receivers):
+            self.receiver_disconnected.send(self,
+                                            receiver=receiver,
+                                            sender=sender)
+
     def _disconnect(self, receiver_id, sender_id):
         if sender_id == ANY_ID:
             if self._by_receiver.pop(receiver_id, False):
@@ -309,6 +362,13 @@ Sent by a :class:`Signal` after a receiver connects.
 :keyword receiver_arg: the connected receiver
 :keyword sender_arg: the sender to connect to
 :keyword weak_arg: true if the connection to receiver_arg is a weak reference
+
+.. deprecated:: 1.2
+
+As of 1.2, individual signals have their own private
+:attr:`~Signal.receiver_connected` and
+:attr:`~Signal.receiver_disconnected` signals with a slightly simplified
+call signature.  This global signal is planned to be removed in 1.6.
 
 """)
 

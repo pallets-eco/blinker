@@ -136,3 +136,18 @@ def callable_reference(object, callback=None):
     elif hasattr(object, '__self__') and object.__self__ is not None:
         return BoundMethodWeakref(target=object, on_delete=callback)
     return annotatable_weakref(object, callback)
+
+
+class lazy_property(object):
+    """A @property that is only evaluated once."""
+
+    def __init__(self, deferred):
+        self._deferred = deferred
+        self.__doc__ = deferred.__doc__
+
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+        value = self._deferred(obj)
+        setattr(obj, self._deferred.__name__, value)
+        return value
