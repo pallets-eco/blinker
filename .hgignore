@@ -1,6 +1,7 @@
 syntax: glob
 
 .coverage
+.tox
 nosetests3
 bench
 *.py?
