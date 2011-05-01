@@ -8,11 +8,14 @@ from nose.tools import assert_raises
 
 
 jython = sys.platform.startswith('java')
+pypy = hasattr(sys, 'pypy_version_info')
 
 
-def collect():
-    if jython:
+def collect_acyclic_refs():
+    # cpython releases these immediately without a collection
+    if jython or pypy:
         gc.collect()
+    if jython:
         time.sleep(0.1)
 
 
@@ -129,7 +132,7 @@ def test_signal_weak_receiver_vanishes():
 
     del sentinel[:]  # holds a ref to receiver2
     del receiver2
-    collect()
+    collect_acyclic_refs()
 
     # no disconnect signal is fired
     assert len(sentinel) == 0
@@ -167,7 +170,7 @@ def test_signal_signals_weak_sender():
 
     # force sender2 to go out of scope
     del sender2
-    collect()
+    collect_acyclic_refs()
 
     # no disconnect signal is fired
     assert len(sentinel) == 1
@@ -203,12 +206,12 @@ def test_singletons():
     assert s1 is ns.signal('abc')
     assert s1 is not ns.signal('def')
     assert 'abc' in ns
-    collect()
+    collect_acyclic_refs()
 
     # weak by default, already out of scope
     assert 'def' not in ns
     del s1
-    collect()
+    collect_acyclic_refs()
 
     assert 'abc' not in ns
 
@@ -229,7 +232,7 @@ def test_weak_receiver():
         sig.connect(received, weak=True)
 
     del received
-    collect()
+    collect_acyclic_refs()
 
     assert not sentinel
     sig.send()
@@ -249,7 +252,7 @@ def test_strong_receiver():
     sig.connect(received, weak=False)
 
     del received
-    collect()
+    collect_acyclic_refs()
 
     assert not sentinel
     sig.send()
@@ -275,7 +278,7 @@ def test_instancemethod_receiver():
     sig.send()
     assert sentinel
     del receiver
-    collect()
+    collect_acyclic_refs()
 
     sig.send()
     assert len(sentinel) == 1
@@ -328,7 +331,7 @@ def test_filtered_receiver_weakref():
     assert sentinel == [obj]
     del sentinel[:]
     del obj
-    collect()
+    collect_acyclic_refs()
 
     # general index isn't cleaned up
     assert sig.receivers
@@ -359,7 +362,7 @@ def test_decorated_receiver():
     assert sig.receivers
 
     del receiver
-    collect()
+    collect_acyclic_refs()
     assert sig.receivers
 
 
@@ -402,7 +405,7 @@ def test_has_receivers():
     assert sig.has_receivers_for(o)
 
     del received
-    collect()
+    collect_acyclic_refs()
 
     assert not sig.has_receivers_for('xyz')
     assert list(sig.receivers_for('xyz')) == []
