@@ -230,12 +230,12 @@ class Signal(object):
 
         .. versionchanged:: 1.1
           Renamed to :meth:`connected_to`.  ``temporarily_connected_to``
-          will be deprecated in 1.2 and removed in a subsequent version.
+          was deprecated in 1.2 and removed in a subsequent version.
 
         """
         warn("temporarily_connected_to is deprecated; "
              "use connected_to instead.",
-             PendingDeprecationWarning)
+             DeprecationWarning)
         return self.connected_to(receiver, sender)
 
     def send(self, *sender, **kwargs):

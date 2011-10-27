@@ -441,4 +441,4 @@ if sys.version_info < (2, 5):
         sig = blinker.Signal()
         receiver = lambda sender: None
 
-        assert_raises(RuntimeError, sig.temporarily_connected_to, receiver)
+        assert_raises(RuntimeError, sig.connected_to, receiver)
