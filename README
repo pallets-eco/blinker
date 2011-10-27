@@ -35,6 +35,12 @@ Blinker requires Python 2.4 or higher, Python 3.0 or higher, or Jython 2.5 or hi
 Changelog Summary
 -----------------
 
+1.2 (October 26, 2011)
+ - Added Signal.receiver_connected and
+   Signal.receiver_disconnected per-Signal signals.
+ - Deprecated the global 'receiver_connected' signal.
+ - Verified Python 3.2 support (no changes needed!)
+
 1.1 (July 21, 2010)
  - Added ``@signal.connect_via(sender)`` decorator
  - Added ``signal.connected_to`` shorthand name for the
