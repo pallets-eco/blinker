@@ -107,6 +107,8 @@ class symbol(object):
 def hashable_identity(obj):
     if hasattr(obj, 'im_func'):
         return (id(obj.im_func), id(obj.im_self))
+    elif isinstance(obj, basestring):
+        return obj
     else:
         return id(obj)
 
