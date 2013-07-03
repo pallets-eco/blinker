@@ -6,7 +6,13 @@ Blinker Changelog
 Version 1.3
 -----------
 
-Unreleased
+- The global signal stash behind blinker.signal() is now backed by a
+  regular name-to-Signal dictionary. Previously, weak references were
+  held in the mapping and ephermal usage in code like
+  ``signal('foo').connect(...)`` could have surprising program behavior
+  depending on import order of modules.
+- blinker.Namespace is now built on a regular dict. Use
+  blinker.WeakNamespace for the older, weak-referencing behavior.
 
 
 Version 1.2

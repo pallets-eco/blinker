@@ -199,8 +199,8 @@ def test_meta_connect_failure():
     blinker.receiver_connected._clear_state()
 
 
-def test_singletons():
-    ns = blinker.Namespace()
+def test_weak_namespace():
+    ns = blinker.WeakNamespace()
     assert not ns
     s1 = ns.signal('abc')
     assert s1 is ns.signal('abc')
@@ -214,6 +214,21 @@ def test_singletons():
     collect_acyclic_refs()
 
     assert 'abc' not in ns
+
+
+def test_namespace():
+    ns = blinker.Namespace()
+    assert not ns
+    s1 = ns.signal('abc')
+    assert s1 is ns.signal('abc')
+    assert s1 is not ns.signal('def')
+    assert 'abc' in ns
+
+    del s1
+    collect_acyclic_refs()
+
+    assert 'def' in ns
+    assert 'abc' in ns
 
 
 def test_weak_receiver():
