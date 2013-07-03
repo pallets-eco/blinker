@@ -6,6 +6,8 @@ Blinker Changelog
 Version 1.3
 -----------
 
+Released July 3, 2013
+
 - The global signal stash behind blinker.signal() is now backed by a
   regular name-to-Signal dictionary. Previously, weak references were
   held in the mapping and ephermal usage in code like
