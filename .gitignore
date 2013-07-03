@@ -1,10 +1,6 @@
-syntax: glob
-
+*.py?
 .coverage
 .tox
-nosetests3
-bench
-*.py?
 build
 dist
 MANIFEST
