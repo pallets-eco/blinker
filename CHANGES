@@ -13,7 +13,8 @@ Version 1.3
   depending on import order of modules.
 - blinker.Namespace is now built on a regular dict. Use
   blinker.WeakNamespace for the older, weak-referencing behavior.
-
+- Signal.connect('text-sender') uses an alterate hashing strategy to
+  avoid sharp edges in text identity.
 
 Version 1.2
 -----------
