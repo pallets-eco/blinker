@@ -16,7 +16,7 @@ setup(name="blinker",
       keywords='signal emit events broadcast',
       long_description=readme,
       license='MIT License',
-      url='http://discorporate.us/projects/Blinker/',
+      url='http://pythonhosted.org/blinker/',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
