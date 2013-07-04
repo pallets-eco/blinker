@@ -265,7 +265,7 @@ All public API members can (and should) be imported from ``blinker``::
 .. currentmodule:: blinker.base
 
 Basic Signals
--------------
++++++++++++++
 
 .. autodata:: blinker.base.ANY
 
@@ -276,7 +276,7 @@ Basic Signals
    :undoc-members:
 
 Named Signals
--------------
++++++++++++++
 
 .. function:: signal(name, doc=None)
 
@@ -296,3 +296,7 @@ Named Signals
 .. autoclass:: WeakNamespace
    :show-inheritance:
    :members: signal
+
+
+.. include:: ../../CHANGES
+
