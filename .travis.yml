@@ -8,3 +8,6 @@ python:
   - "pypy"
 install: pip install nose
 script: nosetests
+
+notifications:
+  irc: "chat.freenode.net#discorporate"
