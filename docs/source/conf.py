@@ -101,11 +101,11 @@ html_static_path = ['_static']
 
 html_theme_path = ['_themes']
 
-html_theme = 'flask'
+html_theme = 'flask_small'
 
 html_theme_options = {
     'index_logo':       'blinker-named.png',
-    #'github_fork':      'jek/blinker'
+    'github_fork':      'jek/blinker'
 }
 
 html_title = 'Blinker'
