@@ -47,8 +47,8 @@ Changelog Summary
    avoid sharp edges in text identity.
 
 1.2 (October 26, 2011)
- - Added Signal.receiver_connected and
-   Signal.receiver_disconnected per-Signal signals.
+ - Added Signal.receiver_connected and Signal.receiver_disconnected
+   per-Signal signals.
  - Deprecated the global 'receiver_connected' signal.
  - Verified Python 3.2 support (no changes needed!)
 
