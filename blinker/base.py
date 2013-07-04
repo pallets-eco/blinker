@@ -229,8 +229,8 @@ class Signal(object):
         .. versionadded:: 0.9
 
         .. versionchanged:: 1.1
-          Renamed to :meth:`connected_to`.  ``temporarily_connected_to``
-          was deprecated in 1.2 and removed in a subsequent version.
+          Renamed to :meth:`connected_to`.  ``temporarily_connected_to`` was
+          deprecated in 1.2 and will be removed in a subsequent version.
 
         """
         warn("temporarily_connected_to is deprecated; "
@@ -408,6 +408,8 @@ class WeakNamespace(WeakValueDictionary):
     Automatically cleans up unused Signals when the last reference goes out
     of scope.  This namespace implementation exists for a measure of legacy
     compatibility with Blinker <= 1.2, and may be dropped in the future.
+
+    .. versionadded:: 1.3
 
     """
 
