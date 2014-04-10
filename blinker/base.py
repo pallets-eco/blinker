@@ -139,6 +139,7 @@ class Signal(object):
         if ('receiver_connected' in self.__dict__ and
             self.receiver_connected.receivers):
             try:
+                # TODO: send is being called.
                 self.receiver_connected.send(self,
                                              receiver=receiver,
                                              sender=sender,
@@ -148,6 +149,7 @@ class Signal(object):
                 raise
         if receiver_connected.receivers and self is not receiver_connected:
             try:
+                # TODO: send is being called.
                 receiver_connected.send(self,
                                         receiver_arg=receiver,
                                         sender_arg=sender,
@@ -313,6 +315,7 @@ class Signal(object):
 
         if ('receiver_disconnected' in self.__dict__ and
             self.receiver_disconnected.receivers):
+            # TODO: send is being called.
             self.receiver_disconnected.send(self,
                                             receiver=receiver,
                                             sender=sender)
