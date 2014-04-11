@@ -140,7 +140,7 @@ class Signal(object):
             self.receiver_connected.receivers):
             try:
                 # TODO: send is being called.
-                self.receiver_connected.send(self,
+                self.receiver_connected.send(sentby=self,
                                              receiver=receiver,
                                              sender=sender,
                                              weak=weak)
@@ -150,7 +150,7 @@ class Signal(object):
         if receiver_connected.receivers and self is not receiver_connected:
             try:
                 # TODO: send is being called.
-                receiver_connected.send(self,
+                receiver_connected.send(sentby=self,
                                         receiver_arg=receiver,
                                         sender_arg=sender,
                                         weak_arg=weak)
@@ -240,7 +240,7 @@ class Signal(object):
              DeprecationWarning)
         return self.connected_to(receiver, sender)
 
-    def send(self, sender=None, *args, **kwargs):
+    def send(self, sender=None, *args, sentby=None, **kwargs):
         """Emit this signal on behalf of *sender*, passing on \*\*kwargs.
 
         Returns a list of 2-tuples, pairing receivers with their return
@@ -256,9 +256,13 @@ class Signal(object):
         if not self.receivers:
             return []
         else:
-            return [(receiver, receiver(sender, *args, **kwargs))
-                    for receiver in self.receivers_for(sender)]
-
+            if not sentby:
+                return [(receiver, receiver(sender, *args, **kwargs))
+                        for receiver in self.receivers_for(sender)]
+            else:
+                kwargs['sender'] = sender
+                return [(receiver, receiver(sentby, *args, **kwargs))
+                        for receiver in self.receivers_for(sentby)]
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
 
@@ -316,7 +320,7 @@ class Signal(object):
         if ('receiver_disconnected' in self.__dict__ and
             self.receiver_disconnected.receivers):
             # TODO: send is being called.
-            self.receiver_disconnected.send(self,
+            self.receiver_disconnected.send(sentby=self,
                                             receiver=receiver,
                                             sender=sender)
 
