@@ -34,34 +34,6 @@ class Sentinel(list):
         return receiver
 
 
-def test_meta_connect():
-    """ 
-    This tests a deprecated feature, the global level of 
-    `blinker.receiver_connected`, so we're not worried about it.
-    Test it last, if at all.
-    """
-#     sentinel = []
-#     def meta_received(sender, **kw):
-#         sentinel.append(dict(kw, sender=sender))
-# 
-#     assert not blinker.receiver_connected.receivers
-#     blinker.receiver_connected.connect(meta_received)
-#     assert not sentinel
-# 
-#     def receiver(sender, **kw):
-#         pass
-#     sig = blinker.Signal()
-#     sig.connect(receiver)
-#     
-#     expected = [dict(sender=sig,
-#                      receiver_arg=receiver,
-#                      sender_arg=blinker.ANY,
-#                      weak_arg=True)]
-#     
-#     assert sentinel == expected
-# 
-#     blinker.receiver_connected._clear_state()
-
 def _test_signal_signals(sender):
     sentinel = Sentinel()
     sig = blinker.Signal()
@@ -184,25 +156,6 @@ def test_signal_signals_weak_sender():
     # and everything really is disconnected
     sig.send('abc')
     assert len(sentinel) == 1
-
-
-def test_meta_connect_failure():
-    def meta_received(sender, **kw):
-        raise TypeError('boom')
-
-    assert not blinker.receiver_connected.receivers
-    blinker.receiver_connected.connect(meta_received)
-
-    def receiver(sender, **kw):
-        pass
-    sig = blinker.Signal()
-
-    assert_raises(TypeError, sig.connect, receiver)
-    assert not sig.receivers
-    assert not sig._by_receiver
-    assert sig._by_sender == {blinker.base.ANY_ID: set()}
-
-    blinker.receiver_connected._clear_state()
 
 
 def test_weak_namespace():

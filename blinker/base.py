@@ -147,16 +147,6 @@ class Signal(object):
             except:
                 self.disconnect(receiver, sender)
                 raise
-        if receiver_connected.receivers and self is not receiver_connected:
-            try:
-                # TODO: send is being called.
-                receiver_connected.send(sentby=self,
-                                        receiver_arg=receiver,
-                                        sender_arg=sender,
-                                        weak_arg=weak)
-            except:
-                self.disconnect(receiver, sender)
-                raise
         return receiver
 
     def connect_via(self, sender, weak=False):
@@ -351,24 +341,6 @@ class Signal(object):
         self.receivers.clear()
         self._by_sender.clear()
         self._by_receiver.clear()
-
-
-receiver_connected = Signal("""\
-Sent by a :class:`Signal` after a receiver connects.
-
-:argument: the Signal that was connected to
-:keyword receiver_arg: the connected receiver
-:keyword sender_arg: the sender to connect to
-:keyword weak_arg: true if the connection to receiver_arg is a weak reference
-
-.. deprecated:: 1.2
-
-As of 1.2, individual signals have their own private
-:attr:`~Signal.receiver_connected` and
-:attr:`~Signal.receiver_disconnected` signals with a slightly simplified
-call signature.  This global signal is planned to be removed in 1.6.
-
-""")
 
 
 class NamedSignal(Signal):
