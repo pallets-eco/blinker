@@ -47,11 +47,13 @@ def test_meta_connect():
         pass
     sig = blinker.Signal()
     sig.connect(receiver)
-
-    assert sentinel == [dict(sender=sig,
-                             receiver_arg=receiver,
-                             sender_arg=blinker.ANY,
-                             weak_arg=True)]
+    
+    expected = [dict(sender=sig,
+                     receiver_arg=receiver,
+                     sender_arg=blinker.ANY,
+                     weak_arg=True)]
+    
+    assert sentinel == expected
 
     blinker.receiver_connected._clear_state()
 
