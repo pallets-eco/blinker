@@ -405,6 +405,22 @@ def test_named_blinker():
     sig = blinker.NamedSignal('squiznart')
     assert 'squiznart' in repr(sig)
 
+def _positional_args_function(sender, arg1, arg2):
+    return sender, arg1, arg2
+
+def test_positional_args():
+    """Ensure that positional arguments get passed correctly to connected functions."""
+    
+    sig = blinker.Signal('sig')
+    sig.connect(_positional_args_function)
+    
+    arg1 = 'something'
+    arg2 = 'unimportant'
+    
+    expected = [(_positional_args_function, (None, arg1, arg2))] 
+    retval = sig.send(None, arg1, arg2)    
+    assert retval == expected
+    
 
 def values_are_empty_sets_(dictionary):
     for val in dictionary.values():
