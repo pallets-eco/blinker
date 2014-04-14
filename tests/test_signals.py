@@ -420,8 +420,25 @@ def test_positional_args():
     expected = [(_positional_args_function, (None, arg1, arg2))] 
     retval = sig.send(None, arg1, arg2)    
     assert retval == expected
-    
 
+def _arbitrary_args_function(sender, *args, **kwargs):
+    return sender, args, kwargs
+
+def test_arbitrary_args():
+    """Test connecting blinker to a function that takes *args and **kwargs."""
+    sig = blinker.Signal()
+    sig.connect(_arbitrary_args_function)
+    
+    args = (1, 2, 3, 'arbitrary positional arguments')
+    
+    kwargs = dict(key1='this is a key.',
+                  key2='this is also a key.')
+    
+    expected = [(_arbitrary_args_function, (None, args, kwargs))]
+    retval = sig.send(None, *args, **kwargs)
+    
+    assert retval == expected
+    
 def values_are_empty_sets_(dictionary):
     for val in dictionary.values():
         assert val == set()
