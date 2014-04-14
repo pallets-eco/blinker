@@ -4,7 +4,7 @@ import time
 
 import blinker
 
-from nose.tools import assert_raises
+from nose.tools import assert_raises # @UnresolvedImport
 
 
 jython = sys.platform.startswith('java')
@@ -32,28 +32,6 @@ class Sentinel(list):
             self.append((key, sentby[0], kw))
         receiver.func_name = 'receiver_%s' % key
         return receiver
-
-
-def test_meta_connect():
-    sentinel = []
-    def meta_received(sender, **kw):
-        sentinel.append(dict(kw, sender=sender))
-
-    assert not blinker.receiver_connected.receivers
-    blinker.receiver_connected.connect(meta_received)
-    assert not sentinel
-
-    def receiver(sender, **kw):
-        pass
-    sig = blinker.Signal()
-    sig.connect(receiver)
-
-    assert sentinel == [dict(sender=sig,
-                             receiver_arg=receiver,
-                             sender_arg=blinker.ANY,
-                             weak_arg=True)]
-
-    blinker.receiver_connected._clear_state()
 
 
 def _test_signal_signals(sender):
@@ -178,25 +156,6 @@ def test_signal_signals_weak_sender():
     # and everything really is disconnected
     sig.send('abc')
     assert len(sentinel) == 1
-
-
-def test_meta_connect_failure():
-    def meta_received(sender, **kw):
-        raise TypeError('boom')
-
-    assert not blinker.receiver_connected.receivers
-    blinker.receiver_connected.connect(meta_received)
-
-    def receiver(sender, **kw):
-        pass
-    sig = blinker.Signal()
-
-    assert_raises(TypeError, sig.connect, receiver)
-    assert not sig.receivers
-    assert not sig._by_receiver
-    assert sig._by_sender == {blinker.base.ANY_ID: set()}
-
-    blinker.receiver_connected._clear_state()
 
 
 def test_weak_namespace():
@@ -446,7 +405,40 @@ def test_named_blinker():
     sig = blinker.NamedSignal('squiznart')
     assert 'squiznart' in repr(sig)
 
+def _positional_args_function(sender, arg1, arg2):
+    return sender, arg1, arg2
 
+def test_positional_args():
+    """Ensure that positional arguments get passed correctly to connected functions."""
+    
+    sig = blinker.Signal('sig')
+    sig.connect(_positional_args_function)
+    
+    arg1 = 'something'
+    arg2 = 'unimportant'
+    
+    expected = [(_positional_args_function, (None, arg1, arg2))] 
+    retval = sig.send(None, arg1, arg2)    
+    assert retval == expected
+
+def _arbitrary_args_function(sender, *args, **kwargs):
+    return sender, args, kwargs
+
+def test_arbitrary_args():
+    """Test connecting blinker to a function that takes *args and **kwargs."""
+    sig = blinker.Signal()
+    sig.connect(_arbitrary_args_function)
+    
+    args = (1, 2, 3, 'arbitrary positional arguments')
+    
+    kwargs = dict(key1='this is a key.',
+                  key2='this is also a key.')
+    
+    expected = [(_arbitrary_args_function, (None, args, kwargs))]
+    retval = sig.send(None, *args, **kwargs)
+    
+    assert retval == expected
+    
 def values_are_empty_sets_(dictionary):
     for val in dictionary.values():
         assert val == set()

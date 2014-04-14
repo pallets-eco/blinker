@@ -4,7 +4,6 @@ from blinker.base import (
     Namespace,
     Signal,
     WeakNamespace,
-    receiver_connected,
     signal,
 )
 

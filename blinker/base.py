@@ -139,19 +139,11 @@ class Signal(object):
         if ('receiver_connected' in self.__dict__ and
             self.receiver_connected.receivers):
             try:
-                self.receiver_connected.send(self,
+                # TODO: send is being called.
+                self.receiver_connected.send(sentby=self,
                                              receiver=receiver,
                                              sender=sender,
                                              weak=weak)
-            except:
-                self.disconnect(receiver, sender)
-                raise
-        if receiver_connected.receivers and self is not receiver_connected:
-            try:
-                receiver_connected.send(self,
-                                        receiver_arg=receiver,
-                                        sender_arg=sender,
-                                        weak_arg=weak)
             except:
                 self.disconnect(receiver, sender)
                 raise
@@ -238,7 +230,7 @@ class Signal(object):
              DeprecationWarning)
         return self.connected_to(receiver, sender)
 
-    def send(self, *sender, **kwargs):
+    def send(self, sender=None, *args, sentby=None, **kwargs):
         """Emit this signal on behalf of *sender*, passing on \*\*kwargs.
 
         Returns a list of 2-tuples, pairing receivers with their return
@@ -250,22 +242,17 @@ class Signal(object):
         :param \*\*kwargs: Data to be sent to receivers.
 
         """
-        # Using '*sender' rather than 'sender=None' allows 'sender' to be
-        # used as a keyword argument- i.e. it's an invisible name in the
-        # function signature.
-        if len(sender) == 0:
-            sender = None
-        elif len(sender) > 1:
-            raise TypeError('send() accepts only one positional argument, '
-                            '%s given' % len(sender))
-        else:
-            sender = sender[0]
+
         if not self.receivers:
             return []
         else:
-            return [(receiver, receiver(sender, **kwargs))
-                    for receiver in self.receivers_for(sender)]
-
+            if not sentby:
+                return [(receiver, receiver(sender, *args, **kwargs))
+                        for receiver in self.receivers_for(sender)]
+            else:
+                kwargs['sender'] = sender
+                return [(receiver, receiver(sentby, *args, **kwargs))
+                        for receiver in self.receivers_for(sentby)]
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
 
@@ -322,7 +309,8 @@ class Signal(object):
 
         if ('receiver_disconnected' in self.__dict__ and
             self.receiver_disconnected.receivers):
-            self.receiver_disconnected.send(self,
+            # TODO: send is being called.
+            self.receiver_disconnected.send(sentby=self,
                                             receiver=receiver,
                                             sender=sender)
 
@@ -353,24 +341,6 @@ class Signal(object):
         self.receivers.clear()
         self._by_sender.clear()
         self._by_receiver.clear()
-
-
-receiver_connected = Signal("""\
-Sent by a :class:`Signal` after a receiver connects.
-
-:argument: the Signal that was connected to
-:keyword receiver_arg: the connected receiver
-:keyword sender_arg: the sender to connect to
-:keyword weak_arg: true if the connection to receiver_arg is a weak reference
-
-.. deprecated:: 1.2
-
-As of 1.2, individual signals have their own private
-:attr:`~Signal.receiver_connected` and
-:attr:`~Signal.receiver_disconnected` signals with a slightly simplified
-call signature.  This global signal is planned to be removed in 1.6.
-
-""")
 
 
 class NamedSignal(Signal):
