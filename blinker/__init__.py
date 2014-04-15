@@ -13,7 +13,6 @@ __all__ = [
     'Namespace',
     'Signal',
     'WeakNamespace',
-    'receiver_connected',
     'signal',
     ]
 
