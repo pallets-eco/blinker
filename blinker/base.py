@@ -239,11 +239,12 @@ class Signal(object):
 
         :param \*\*kwargs: Keyword arguments to be sent to receivers.
 
-        .. note::
-          The keyword argument ``__sentby_signal`` is used by the
-          implementation and will have unexpected consequences if passed to
-          this this method directly.  **Bottom line: do not pass the keyword
-          argument ``__sentby_signal``.
+        .. attention::
+
+           The keyword argument ``__sentby_signal`` is used by the
+           implementation and will have unexpected consequences if passed to
+           this this method directly.  **Bottom line: do not pass the keyword
+           argument ``__sentby_signal``.**
 
         """
         if not self.receivers:
@@ -257,6 +258,7 @@ class Signal(object):
                 kwargs['sender'] = sender
                 return [(receiver, receiver(sentby, *args, **kwargs))
                         for receiver in self.receivers_for(sentby)]
+
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
 
