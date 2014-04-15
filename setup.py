@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-readme = open('README').read()
+readme = open('README.rst').read()
 import blinker
 version = blinker.__version__
 
