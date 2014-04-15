@@ -236,10 +236,19 @@ class Signal(object):
         Returns a list of 2-tuples, pairing receivers with their return
         value. The ordering of receiver notification is undefined.
 
-        :param \*sender: Any object or ``None``.  If omitted, synonymous
-          with ``None``.  Only accepts one positional argument.
-
-        :param \*\*kwargs: Data to be sent to receivers.
+        :param sender: Any object or ``None``.
+        
+        :param sentby: Only used by the implementation.  This should not be 
+          given directly by the user; it is present so 
+          :attr:`receiver_connected` can differentiate between the message to 
+          be sent (`sender`) and the signal which sent it (`sentby`) to ensure
+          that the correct receivers are called with the correct arguments.  
+          Basically, *you should never call this method with this argument 
+          unless you are absolutely certain that you should.*
+        
+        :param \*args: Positional arguments to be sent to receivers.
+        
+        :param \*\*kwargs: Keyword arguments to be sent to receivers.
 
         """
 
