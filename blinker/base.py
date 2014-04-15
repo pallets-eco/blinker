@@ -136,17 +136,14 @@ class Signal(object):
                 del sender_ref
 
         # broadcast this connection.  if receivers raise, disconnect.
-        if ('receiver_connected' in self.__dict__ and
-            self.receiver_connected.receivers):
-            try:
-                # TODO: send is being called.
-                self.receiver_connected.send(sentby=self,
-                                             receiver=receiver,
-                                             sender=sender,
-                                             weak=weak)
-            except:
-                self.disconnect(receiver, sender)
-                raise
+        try:
+            self.receiver_connected.send(sentby=self,
+                                         receiver=receiver,
+                                         sender=sender,
+                                         weak=weak)
+        except:
+            self.disconnect(receiver, sender)
+            raise
         return receiver
 
     def connect_via(self, sender, weak=False):
@@ -316,12 +313,9 @@ class Signal(object):
         receiver_id = hashable_identity(receiver)
         self._disconnect(receiver_id, sender_id)
 
-        if ('receiver_disconnected' in self.__dict__ and
-            self.receiver_disconnected.receivers):
-            # TODO: send is being called.
-            self.receiver_disconnected.send(sentby=self,
-                                            receiver=receiver,
-                                            sender=sender)
+        self.receiver_disconnected.send(sentby=self,
+                                        receiver=receiver,
+                                        sender=sender)
 
     def _disconnect(self, receiver_id, sender_id):
         if sender_id == ANY_ID:
