@@ -137,7 +137,7 @@ class Signal(object):
 
         # broadcast this connection.  if receivers raise, disconnect.
         try:
-            self.receiver_connected.send(sentby=self,
+            self.receiver_connected.send(__sentby_signal=self,
                                          receiver=receiver,
                                          sender=sender,
                                          weak=weak)
@@ -227,31 +227,29 @@ class Signal(object):
              DeprecationWarning)
         return self.connected_to(receiver, sender)
 
-    def send(self, sender=None, *args, sentby=None, **kwargs):
+    def send(self, sender=None, *args, **kwargs):
         """Emit this signal on behalf of *sender*, passing on \*\*kwargs.
 
         Returns a list of 2-tuples, pairing receivers with their return
         value. The ordering of receiver notification is undefined.
 
         :param sender: Any object or ``None``.
-        
-        :param sentby: Only used by the implementation.  This should not be 
-          given directly by the user; it is present so 
-          :attr:`receiver_connected` can differentiate between the message to 
-          be sent (`sender`) and the signal which sent it (`sentby`) to ensure
-          that the correct receivers are called with the correct arguments.  
-          Basically, *you should never call this method with this argument 
-          unless you are absolutely certain that you should.*
-        
+
         :param \*args: Positional arguments to be sent to receivers.
-        
+
         :param \*\*kwargs: Keyword arguments to be sent to receivers.
 
-        """
+        .. note::
+          The keyword argument ``__sentby_signal`` is used by the
+          implementation and will have unexpected consequences if passed to
+          this this method directly.  **Bottom line: do not pass the keyword
+          argument ``__sentby_signal``.
 
+        """
         if not self.receivers:
             return []
         else:
+            sentby = kwargs.pop('__sentby_signal', None)
             if not sentby:
                 return [(receiver, receiver(sender, *args, **kwargs))
                         for receiver in self.receivers_for(sender)]
@@ -313,7 +311,7 @@ class Signal(object):
         receiver_id = hashable_identity(receiver)
         self._disconnect(receiver_id, sender_id)
 
-        self.receiver_disconnected.send(sentby=self,
+        self.receiver_disconnected.send(__sentby_signal=self,
                                         receiver=receiver,
                                         sender=sender)
 
