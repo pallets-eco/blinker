@@ -451,6 +451,28 @@ def values_are_empty_sets_(dictionary):
     for val in dictionary.values():
         assert val == set()
 
+def test_send_robust():
+    def good(sender):
+        return True
+    def bad(sender):
+        assert False, "error"
+
+    sig = blinker.Signal()
+
+    sig.connect(good)
+    sig.connect(bad)
+
+    try:
+        responses = sig.send_robust()
+    except:
+        assert False, "send_robust did not capture all exceptions"
+    else:
+        for receiver, val in responses:
+            if receiver is good:
+                assert val is True
+            elif receiver is bad:
+                assert isinstance(val, AssertionError)
+
 if sys.version_info < (2, 5):
     def test_context_manager_warning():
         sig = blinker.Signal()
