@@ -266,6 +266,47 @@ class Signal(object):
             return [(receiver, receiver(sender, **kwargs))
                     for receiver in self.receivers_for(sender)]
 
+    def send_robust(self, *sender, **kwargs):
+        """Emit this signal on behalf of *sender*, passing on \*\*kwargs,
+        catching errors.
+        
+        If any receiver raises an error (specifically any subclass of
+        Exception), the error instance is returned as the result for that
+        receiver.        
+        
+        Returns a list of 2-tuples, pairing receivers with their return
+        value or error. The ordering of receiver notification is 
+        undefined.
+
+        :param \*sender: Any object or ``None``.  If omitted, synonymous
+          with ``None``.  Only accepts one positional argument.
+
+        :param \*\*kwargs: Data to be sent to receivers.
+
+        """
+        # Using '*sender' rather than 'sender=None' allows 'sender' to be
+        # used as a keyword argument- i.e. it's an invisible name in the
+        # function signature.
+        if len(sender) == 0:
+            sender = None
+        elif len(sender) > 1:
+            raise TypeError('send() accepts only one positional argument, '
+                            '%s given' % len(sender))
+        else:
+            sender = sender[0]
+        if not self.receivers:
+            return []
+        else:
+            responses = []
+            for receiver in self.receivers_for(sender):
+                try:
+                    response = receiver(sender, **kwargs)
+                except Exception as err:
+                    responses.append((receiver, err))
+                else:
+                    responses.append((receiver, response))
+            return responses            
+
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
 
