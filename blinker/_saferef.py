@@ -161,11 +161,13 @@ class BoundMethodWeakref(object):
         """
         def remove(weak, self=self):
             """Set self.isDead to True when method or instance is destroyed."""
+            methods = self.deletion_methods[:]
+            del self.deletion_methods
             try:
                 del self.__class__._all_instances[self.key]
             except KeyError:
                 pass
-            for function in self.deletion_methods:
+            for function in methods:
                 try:
                     if callable(function):
                         function(self)
