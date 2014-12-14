@@ -396,10 +396,7 @@ class Namespace(dict):
         Repeated calls to this function will return the same signal object.
 
         """
-        try:
-            return self[name]
-        except KeyError:
-            return self.setdefault(name, NamedSignal(name, doc))
+        return self.setdefault(name, NamedSignal(name, doc))
 
 
 class WeakNamespace(WeakValueDictionary):
@@ -417,10 +414,7 @@ class WeakNamespace(WeakValueDictionary):
         Repeated calls to this function will return the same signal object.
 
         """
-        try:
-            return self[name]
-        except KeyError:
-            return self.setdefault(name, NamedSignal(name, doc))
+        return self.setdefault(name, NamedSignal(name, doc))
 
 
 signal = Namespace().signal
