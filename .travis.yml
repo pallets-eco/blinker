@@ -1,13 +1,14 @@
 language: python
 python:
-  - "3.3"
-  - "3.2"
-  - "2.7"
   - "2.6"
-  - "2.5"
-  - "pypy"
-install: pip install nose
-script: nosetests
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
 
-notifications:
-  irc: "chat.freenode.net#discorporate"
+# command to install dependencies
+install:
+  - "pip install ."
+
+# command to run tests
+script: nosetests
