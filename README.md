@@ -29,6 +29,8 @@ sent by any sender.
     This is round two.
     Round 3!
 
+See the [Blinker documentation](https://pythonhosted.org/blinker/) for more information.
+
 ## Requirements
 
 Blinker requires Python 2.4 or higher, Python 3.0 or higher, or Jython 2.5 or higher.
