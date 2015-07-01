@@ -329,11 +329,21 @@ class Signal(object):
     def _disconnect(self, receiver_id, sender_id):
         if sender_id == ANY_ID:
             if self._by_receiver.pop(receiver_id, False):
-                for bucket in self._by_sender.values():
+                empty_buckets = []
+                for key, bucket in self._by_sender.items():
                     bucket.discard(receiver_id)
+                    if not bucket:
+                        empty_buckets.append(key)
+                for key in empty_buckets:
+                    del self._by_sender[key]
             self.receivers.pop(receiver_id, None)
         else:
             self._by_sender[sender_id].discard(receiver_id)
+            if not self._by_sender[sender_id]:
+                del self._by_sender[sender_id]
+            self._by_receiver[receiver_id].discard(sender_id)
+            if not self._by_receiver[receiver_id]:
+                del self._by_receiver[receiver_id]
 
     def _cleanup_receiver(self, receiver_ref):
         """Disconnect a receiver from all senders."""
@@ -346,6 +356,8 @@ class Signal(object):
         self._weak_senders.pop(sender_id, None)
         for receiver_id in self._by_sender.pop(sender_id, ()):
             self._by_receiver[receiver_id].discard(sender_id)
+            if not self._by_receiver[receiver_id]:
+                del self._by_receiver[receiver_id]
 
     def _clear_state(self):
         """Throw away all signal state.  Useful for unit tests."""
