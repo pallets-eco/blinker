@@ -180,9 +180,14 @@ def test_signal_signals_weak_sender():
     assert len(sentinel) == 1
 
 
-def test_memory_leaks():
+def test_empty_bucket_growth():
     sentinel = Sentinel()
     sig = blinker.Signal()
+    senders = lambda: (len(sig._by_sender),
+                       sum(len(i) for i in sig._by_sender.values()))
+    receivers = lambda: (len(sig._by_receiver),
+                         sum(len(i) for i in sig._by_receiver.values()))
+
     receiver1 = sentinel.make_receiver('receiver1')
     receiver2 = sentinel.make_receiver('receiver2')
 
@@ -193,25 +198,22 @@ def test_memory_leaks():
     sig.connect(receiver1, sender=sender)
     sig.connect(receiver2, sender=sender)
 
-    assert len(sig._by_sender) == 1
-    assert len(sig._by_receiver) == 2
-    receivers_bucket = list(sig._by_sender.values())[0]
-    assert len(receivers_bucket) == 2
-    senders_buckets = list(sig._by_receiver.values())
-    assert len(senders_buckets[0]) == 1
-    assert len(senders_buckets[1]) == 1
+    assert senders() == (1, 2)
+    assert receivers() == (2, 2)
 
     sig.disconnect(receiver1, sender=sender)
-    assert len(sig._by_sender) == 1
-    assert len(sig._by_receiver) == 1
-    receivers_bucket = list(sig._by_sender.values())[0]
-    assert len(receivers_bucket) == 1
-    senders_bucket = list(sig._by_receiver.values())[0]
-    assert len(senders_bucket) == 1
+
+    assert senders() == (1, 1)
+    assert receivers() == (2, 1)
 
     sig.disconnect(receiver2, sender=sender)
-    assert len(sig._by_sender) == 0
-    assert len(sig._by_receiver) == 0
+
+    assert senders() == (1, 0)
+    assert receivers() == (2, 0)
+
+    sig._cleanup_bookkeeping()
+    assert senders() == (0, 0)
+    assert receivers() == (0, 0)
 
 
 def test_meta_connect_failure():
@@ -228,7 +230,7 @@ def test_meta_connect_failure():
     assert_raises(TypeError, sig.connect, receiver)
     assert not sig.receivers
     assert not sig._by_receiver
-    assert not sig._by_sender
+    assert sig._by_sender == {blinker.base.ANY_ID: set()}
 
     blinker.receiver_connected._clear_state()
 

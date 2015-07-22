@@ -329,21 +329,12 @@ class Signal(object):
     def _disconnect(self, receiver_id, sender_id):
         if sender_id == ANY_ID:
             if self._by_receiver.pop(receiver_id, False):
-                empty_buckets = []
-                for key, bucket in self._by_sender.items():
+                for bucket in self._by_sender.values():
                     bucket.discard(receiver_id)
-                    if not bucket:
-                        empty_buckets.append(key)
-                for key in empty_buckets:
-                    del self._by_sender[key]
             self.receivers.pop(receiver_id, None)
         else:
             self._by_sender[sender_id].discard(receiver_id)
-            if not self._by_sender[sender_id]:
-                del self._by_sender[sender_id]
             self._by_receiver[receiver_id].discard(sender_id)
-            if not self._by_receiver[receiver_id]:
-                del self._by_receiver[receiver_id]
 
     def _cleanup_receiver(self, receiver_ref):
         """Disconnect a receiver from all senders."""
@@ -356,8 +347,32 @@ class Signal(object):
         self._weak_senders.pop(sender_id, None)
         for receiver_id in self._by_sender.pop(sender_id, ()):
             self._by_receiver[receiver_id].discard(sender_id)
-            if not self._by_receiver[receiver_id]:
-                del self._by_receiver[receiver_id]
+
+    def _cleanup_bookkeeping(self):
+        """Prune unused sender/receiver bookeeping. Not threadsafe.
+
+        Connecting & disconnecting leave behind a small amount of bookeeping
+        for the receiver and sender values. Typical workloads using Blinker,
+        for example in most web apps, Flask, CLI scripts, etc., are not
+        adversely affected by this bookkeeping.
+
+        With a long-running Python process performing dynamic signal routing
+        with high volume- e.g. connecting to function closures, "senders" are
+        all unique object instances, and doing all of this over and over- you
+        may see memory usage will grow due to extraneous bookeeping. (Visible
+        in memory profiing as an increasing number of empty sets.)
+
+        This method will prune that bookeeping away, with the caveat that such
+        pruning is not threadsafe. The risk is that cleanup of a fully
+        disconnected receiver/sender pair occurs while another thread is
+        connecting that same pair. If you are in the highly dynamic, unique
+        receiver/sender situation that has lead you to this method, that
+        failure mode is perhaps not a big deal for you.
+        """
+        for mapping in (self._by_sender, self._by_receiver):
+            for _id, bucket in list(mapping.items()):
+                if not bucket:
+                    mapping.pop(_id, None)
 
     def _clear_state(self):
         """Throw away all signal state.  Useful for unit tests."""
