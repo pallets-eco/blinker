@@ -2,6 +2,10 @@
 Blinker Changelog
 =================
 
+Version 1.4.dev
+---------------
+
+- Fixed memory leaks.
 
 Version 1.3
 -----------
