@@ -7,6 +7,7 @@ Version 1.4
 
 Released July 23, 2015
 
+- Verified Python 3.4 support (no changes needed)
 - Additional bookkeeping cleanup for non-ANY connections at disconnect
   time.
 - Added Signal._cleanup_bookeeping() to prune stale bookkeeping on
