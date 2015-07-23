@@ -7,6 +7,8 @@ Version 1.4dev
 
 - Additional bookkeeping cleanup for non-ANY connections at disconnect
   time.
+- Added Signal._cleanup_bookeeping() to prune stale bookkeeping on
+  demand
 
 Version 1.3
 -----------
