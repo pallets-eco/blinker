@@ -5,6 +5,8 @@ Blinker Changelog
 Version 1.5dev
 --------------
 
+- Added Signal.send_async, dispatching to an arbitrary mix of connected
+  coroutines and receiver functions.
 
 Version 1.4
 -----------
