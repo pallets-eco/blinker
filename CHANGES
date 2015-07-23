@@ -2,8 +2,10 @@
 Blinker Changelog
 =================
 
-Version 1.4dev
---------------
+Version 1.4
+-----------
+
+Released July 23, 2015
 
 - Additional bookkeeping cleanup for non-ANY connections at disconnect
   time.

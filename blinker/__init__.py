@@ -19,4 +19,4 @@ __all__ = [
     ]
 
 
-__version__ = '1.4dev'
+__version__ = '1.4'
