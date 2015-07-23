@@ -2,6 +2,11 @@
 Blinker Changelog
 =================
 
+Version 1.4dev
+--------------
+
+- Additional bookkeeping cleanup for non-ANY connections at disconnect
+  time.
 
 Version 1.3
 -----------

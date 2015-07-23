@@ -334,6 +334,7 @@ class Signal(object):
             self.receivers.pop(receiver_id, None)
         else:
             self._by_sender[sender_id].discard(receiver_id)
+            self._by_receiver[receiver_id].discard(sender_id)
 
     def _cleanup_receiver(self, receiver_ref):
         """Disconnect a receiver from all senders."""
