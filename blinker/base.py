@@ -417,6 +417,8 @@ class NamedSignal(Signal):
 class Namespace(dict):
     """A mapping of signal names to signals."""
 
+    signal_cls = NamedSignal
+
     def signal(self, name, doc=None):
         """Return the :class:`NamedSignal` *name*, creating it if required.
 
@@ -426,7 +428,7 @@ class Namespace(dict):
         try:
             return self[name]
         except KeyError:
-            return self.setdefault(name, NamedSignal(name, doc))
+            return self.setdefault(name, self.signal_cls(name, doc))
 
 
 class WeakNamespace(WeakValueDictionary):
@@ -440,6 +442,8 @@ class WeakNamespace(WeakValueDictionary):
 
     """
 
+    signal_cls = NamedSignal
+
     def signal(self, name, doc=None):
         """Return the :class:`NamedSignal` *name*, creating it if required.
 
@@ -449,7 +453,7 @@ class WeakNamespace(WeakValueDictionary):
         try:
             return self[name]
         except KeyError:
-            return self.setdefault(name, NamedSignal(name, doc))
+            return self.setdefault(name, self.signal_cls(name, doc))
 
 
 signal = Namespace().signal
