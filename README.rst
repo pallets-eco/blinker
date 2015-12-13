@@ -74,8 +74,8 @@ Changelog Summary
 0.9 (February 26, 2010)
 
 -  Sphinx docs, project website
--  Added ``with a_signal.temporarily_connected_to(receiver): ...``
-   support 
+-  Added ``with a_signal.temporarily_connected_to(receiver): ...`` support
+
 
 .. _Blinker documentation: https://pythonhosted.org/blinker/
 
