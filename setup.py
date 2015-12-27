@@ -37,4 +37,6 @@ setup(name="blinker",
           'Topic :: Software Development :: Libraries',
           'Topic :: Utilities',
           ],
+          tests_require=['nose'],
+          test_suite='nose.collector',
 )
