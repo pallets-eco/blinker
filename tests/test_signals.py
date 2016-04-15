@@ -1,10 +1,11 @@
 import gc
 import sys
 import time
+from types import TracebackType
+
+from nose.tools import assert_raises, assert_true
 
 import blinker
-
-from nose.tools import assert_raises
 
 
 jython = sys.platform.startswith('java')
@@ -490,13 +491,18 @@ def values_are_empty_sets_(dictionary):
 def test_send_robust():
     def good(sender):
         return True
+
     def bad(sender):
         assert False, "error"
+
+    def error(sender):
+        1/0
 
     sig = blinker.Signal()
 
     sig.connect(good)
     sig.connect(bad)
+    sig.connect(error)
 
     try:
         responses = sig.send_robust()
@@ -508,6 +514,12 @@ def test_send_robust():
                 assert val is True
             elif receiver is bad:
                 assert isinstance(val, AssertionError)
+                assert_true(hasattr(val, '__traceback__'))
+                assert_true(isinstance(val.__traceback__, TracebackType))
+            elif receiver is error:
+                assert isinstance(val, ZeroDivisionError)
+                assert_true(hasattr(val, '__traceback__'))
+                assert_true(isinstance(val.__traceback__, TracebackType))
 
 if sys.version_info < (2, 5):
     def test_context_manager_warning():

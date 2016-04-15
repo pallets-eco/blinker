@@ -8,6 +8,7 @@ each manages its own receivers and message emission.
 The :func:`signal` function provides singleton behavior for named signals.
 
 """
+import sys
 from warnings import warn
 from weakref import WeakValueDictionary
 
@@ -269,14 +270,15 @@ class Signal(object):
     def send_robust(self, *sender, **kwargs):
         """Emit this signal on behalf of *sender*, passing on \*\*kwargs,
         catching errors.
-        
+
         If any receiver raises an error (specifically any subclass of
         Exception), the error instance is returned as the result for that
-        receiver.        
-        
+        receiver.
+
         Returns a list of 2-tuples, pairing receivers with their return
-        value or error. The ordering of receiver notification is 
-        undefined.
+        value or error. The ordering of receiver notification is
+        undefined. The traceback is always attached to the error as
+        ``__traceback__``.
 
         :param \*sender: Any object or ``None``.  If omitted, synonymous
           with ``None``.  Only accepts one positional argument.
@@ -302,10 +304,12 @@ class Signal(object):
                 try:
                     response = receiver(sender, **kwargs)
                 except Exception as err:
+                    if not hasattr(err, '__traceback__'):
+                        err.__traceback__ = sys.exc_info()[2]
                     responses.append((receiver, err))
                 else:
                     responses.append((receiver, response))
-            return responses            
+            return responses
 
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
