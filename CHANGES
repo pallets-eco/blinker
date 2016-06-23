@@ -5,6 +5,9 @@ Blinker Changelog
 Version 1.5dev
 --------------
 
+Not yet released.
+
+- Verified Python 3.5 support (no changes needed).
 
 Version 1.4
 -----------
