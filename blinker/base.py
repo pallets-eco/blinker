@@ -183,6 +183,36 @@ class Signal(object):
             return fn
         return decorator
 
+    def connect_via_multiple(self, senders, weak=False):
+        """Connect the decorated function as a receiver for *sender*.
+
+        :param senders: A list of objects or :obj:`ANY`.  The decorated
+          function will only receive :meth:`send` emissions sent by *sender*.
+          If ``ANY``, the receiver will always be notified.  A function may be
+          decorated multiple times with differing *sender* values.
+
+        :param weak: If true, the Signal will hold a weakref to the
+          decorated function and automatically disconnect when *receiver*
+          goes out of scope or is garbage collected.  Unlike
+          :meth:`connect`, this defaults to False.
+
+        The decorated function will be invoked by :meth:`send` with
+          `sender=` as a single positional argument and any \*\*kwargs that
+          were provided to the call to :meth:`send`.
+
+
+        .. versionadded:: 1.5
+
+        """
+        if senders.__class__ != list:
+            senders = [senders]
+
+        def decorator(fn):
+            for sender in senders:
+                self.connect(fn, sender, weak)
+            return fn
+        return decorator
+
     @contextmanager
     def connected_to(self, receiver, sender=ANY):
         """Execute a block with the signal temporarily connected to *receiver*.

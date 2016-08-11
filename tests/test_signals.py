@@ -411,6 +411,38 @@ def test_decorated_receiver():
     assert not sentinel
     sig.send(obj)
     assert sig.receivers
+    del receiver
+    collect_acyclic_refs()
+    assert sig.receivers
+
+
+def test_decorated_receiver_mutiple():
+    sentinel = []
+
+    class Object1(object):
+        pass
+
+    class Object2(object):
+        pass
+
+    obj1 = Object1()
+    obj2 = Object2()
+
+    sig = blinker.Signal()
+
+    @sig.connect_via_multiple([obj1, obj2])
+    def receiver(sender, **kw):
+        sentinel.append(kw)
+
+    assert not sentinel
+    sig.send()
+    assert not sentinel
+    sig.send(1)
+    assert not sentinel
+    sig.send(obj1)
+    assert sig.receivers
+    sig.send(obj2)
+    assert sig.receivers
 
     del receiver
     collect_acyclic_refs()
