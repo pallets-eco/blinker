@@ -1,3 +1,4 @@
+import sys
 from weakref import ref
 
 from blinker._saferef import BoundMethodWeakref
@@ -8,6 +9,12 @@ try:
 except NameError:
     def callable(object):
         return hasattr(object, '__call__')
+
+
+if sys.version_info < (3,):
+    self_attr_name = 'im_self'
+else:
+    self_attr_name = '__self__'
 
 
 try:
@@ -141,9 +148,7 @@ def reference(object, callback=None, **annotations):
 
 def callable_reference(object, callback=None):
     """Return an annotated weak ref, supporting bound instance methods."""
-    if hasattr(object, 'im_self') and object.im_self is not None:
-        return BoundMethodWeakref(target=object, on_delete=callback)
-    elif hasattr(object, '__self__') and object.__self__ is not None:
+    if hasattr(object, self_attr_name) and getattr(object, self_attr_name) is not None:
         return BoundMethodWeakref(target=object, on_delete=callback)
     return annotatable_weakref(object, callback)
 
