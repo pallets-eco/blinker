@@ -224,6 +224,9 @@ class Signal(object):
 
     @contextmanager
     def muted(self):
+        """Context manager for temporarily disabling signal.
+        Useful for test purposes.
+        """
         self.is_muted = True
         try:
             yield None
