@@ -85,6 +85,7 @@ class Signal(object):
         #: of the mapping is useful as an extremely efficient check to see if
         #: any receivers are connected to the signal.
         self.receivers = {}
+        self.is_muted = False
         self._by_receiver = defaultdict(set)
         self._by_sender = defaultdict(set)
         self._weak_senders = {}
@@ -220,6 +221,18 @@ class Signal(object):
         else:
             self.disconnect(receiver)
 
+
+    @contextmanager
+    def muted(self):
+        self.is_muted = True
+        try:
+            yield None
+        except:
+            raise
+        finally:
+            self.is_muted = False
+
+
     def temporarily_connected_to(self, receiver, sender=ANY):
         """An alias for :meth:`connected_to`.
 
@@ -260,7 +273,7 @@ class Signal(object):
                             '%s given' % len(sender))
         else:
             sender = sender[0]
-        if not self.receivers:
+        if self.is_muted or not self.receivers:
             return []
         else:
             return [(receiver, receiver(sender, **kwargs))
