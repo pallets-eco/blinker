@@ -19,6 +19,8 @@ from blinker._utilities import (
     lazy_property,
     reference,
     symbol,
+    OrderedDict,
+    OrderedSet
     )
 
 
@@ -84,9 +86,9 @@ class Signal(object):
         #: internal :class:`Signal` implementation, however the boolean value
         #: of the mapping is useful as an extremely efficient check to see if
         #: any receivers are connected to the signal.
-        self.receivers = {}
-        self._by_receiver = defaultdict(set)
-        self._by_sender = defaultdict(set)
+        self.receivers = OrderedDict()
+        self._by_receiver = defaultdict(OrderedSet)
+        self._by_sender = defaultdict(OrderedSet)
         self._weak_senders = {}
 
     def connect(self, receiver, sender=ANY, weak=True):

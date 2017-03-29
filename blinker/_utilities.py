@@ -56,6 +56,12 @@ except:
             return 'defaultdict(%s, %s)' % (self.default_factory,
                                             dict.__repr__(self))
 
+try:
+    from collections import OrderedDict
+except:
+    from ordereddict import OrderedDict
+
+from orderedset import OrderedSet
 
 try:
     from contextlib import contextmanager
