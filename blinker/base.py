@@ -103,7 +103,9 @@ class Signal(object):
           :meth:`send` emissions sent by *sender*.  If ``ANY``, the receiver
           will always be notified.  A *receiver* may be connected to
           multiple *sender* values on the same Signal through multiple calls
-          to :meth:`connect`.
+          to :meth:`connect`. When the signal is triggered via :meth:`send`
+          the receiver will be called at most once (regardless of how many
+          matching :meth:`connect` calls have been made)
 
         :param weak: If true, the Signal will hold a weakref to *receiver*
           and automatically disconnect when *receiver* goes out of scope or
@@ -244,7 +246,8 @@ class Signal(object):
         """Emit this signal on behalf of *sender*, passing on \*\*kwargs.
 
         Returns a list of 2-tuples, pairing receivers with their return
-        value. The ordering of receiver notification is undefined.
+        value. Receiver notification happens in the order of in which
+        matching receivers were first connected.
 
         :param \*sender: Any object or ``None``.  If omitted, synonymous
           with ``None``.  Only accepts one positional argument.
@@ -290,8 +293,8 @@ class Signal(object):
         if self.receivers:
             sender_id = hashable_identity(sender)
             if sender_id in self._by_sender:
-                ids = (self._by_sender[ANY_ID] |
-                       self._by_sender[sender_id])
+                # receivers has all ids in chronological order of first add, use it to set ordering
+                ids = (OrderedSet(self.receivers.keys()) & (self._by_sender[sender_id] | self._by_sender[ANY_ID]))
             else:
                 ids = self._by_sender[ANY_ID].copy()
             for receiver_id in ids:
