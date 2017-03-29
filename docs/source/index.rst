@@ -192,7 +192,7 @@ be used as a decorator on functions:
   >>> apc = AltProcessor('c')
   >>> @apc.on_complete.connect
   ... def completed(sender):
-  ...     print "AltProcessor %s completed!" % sender.name
+  ...     print("AltProcessor %s completed!" % sender.name)
   ...
   >>> apc.go()
   Alternate processing.
