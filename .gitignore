@@ -1,4 +1,6 @@
-*.py?
+*.pyc
+*.c
+*.so
 *$py.class
 .coverage
 .tox
@@ -13,3 +15,4 @@ docs/pickles
 docs/source/_static
 docs/source/_template
 docs/website
+blinker.egg-info/
