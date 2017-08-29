@@ -1,8 +1,8 @@
 cdef class _CheckReceiversSignalMixin:
     cdef public dict receivers
 
-    cdef __check_receivers(self):
-        return len(self.receivers) > 0
+    cdef inline object __not_receivers(self):
+        return not self.receivers
 
-    def _check_receivers(self):
-        return self.__check_receivers()
+    def _not_receivers(self):
+        return self.__not_receivers()

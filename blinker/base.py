@@ -26,8 +26,8 @@ try:
 except ImportError:
     # None optimized class.
     class _CheckReceiversSignalMixin:
-        def _check_receivers(self):
-            return len(self.receivers) > 0
+        def _not_receivers(self):
+            return not self.receivers
 
 ANY = symbol('ANY')
 ANY.__doc__ = 'Token for "any sender".'
@@ -256,7 +256,7 @@ class Signal(_CheckReceiversSignalMixin, object):
         :param \*\*kwargs: Data to be sent to receivers.
 
         """
-        if not self._check_receivers():
+        if self._not_receivers():
             return []
 
         # Using '*sender' rather than 'sender=None' allows 'sender' to be
