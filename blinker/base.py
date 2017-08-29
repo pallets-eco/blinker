@@ -21,13 +21,19 @@ from blinker._utilities import (
     symbol,
     )
 
+try:
+    from ._speedup import _CheckReceiversSignalMixin
+except ImportError:
+    # None optimized class.
+    class _CheckReceiversSignalMixin:
+        def _not_receivers(self):
+            return not self.receivers
 
 ANY = symbol('ANY')
 ANY.__doc__ = 'Token for "any sender".'
 ANY_ID = 0
 
-
-class Signal(object):
+class Signal(_CheckReceiversSignalMixin, object):
     """A notification emitter."""
 
     #: An :obj:`ANY` convenience synonym, allows ``Signal.ANY``
@@ -250,6 +256,9 @@ class Signal(object):
         :param \*\*kwargs: Data to be sent to receivers.
 
         """
+        if self._not_receivers():
+            return []
+
         # Using '*sender' rather than 'sender=None' allows 'sender' to be
         # used as a keyword argument- i.e. it's an invisible name in the
         # function signature.
@@ -260,11 +269,9 @@ class Signal(object):
                             '%s given' % len(sender))
         else:
             sender = sender[0]
-        if not self.receivers:
-            return []
-        else:
-            return [(receiver, receiver(sender, **kwargs))
-                    for receiver in self.receivers_for(sender)]
+
+        return [(receiver, receiver(sender, **kwargs))
+                for receiver in self.receivers_for(sender)]
 
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.

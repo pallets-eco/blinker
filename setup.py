@@ -3,6 +3,12 @@ try:
 except ImportError:
     from distutils.core import setup
 
+try:
+    from Cython.Build import cythonize
+    extensions = cythonize('blinker/_speedup.pyx')
+except ImportError:
+    extensions = None
+
 readme = open('README.md').read()
 import blinker
 version = blinker.__version__
@@ -10,6 +16,7 @@ version = blinker.__version__
 setup(name="blinker",
       version=version,
       packages=['blinker'],
+      ext_modules=extensions,
       author='Jason Kirtland',
       author_email='jek@discorporate.us',
       description='Fast, simple object-to-object and broadcast signaling',
