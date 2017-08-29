@@ -250,6 +250,14 @@ class Signal(object):
         :param \*\*kwargs: Data to be sent to receivers.
 
         """
+        if not self.receivers:
+            # Ensure correct signature even on no-op sends, disable with -O
+            # for lowest possible cost.
+            if __debug__ and sender and len(sender) > 1:
+                raise TypeError('send() accepts only one positional '
+                                'argument, %s given' % len(sender))
+            return []
+
         # Using '*sender' rather than 'sender=None' allows 'sender' to be
         # used as a keyword argument- i.e. it's an invisible name in the
         # function signature.
@@ -260,11 +268,8 @@ class Signal(object):
                             '%s given' % len(sender))
         else:
             sender = sender[0]
-        if not self.receivers:
-            return []
-        else:
-            return [(receiver, receiver(sender, **kwargs))
-                    for receiver in self.receivers_for(sender)]
+        return [(receiver, receiver(sender, **kwargs))
+                for receiver in self.receivers_for(sender)]
 
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
