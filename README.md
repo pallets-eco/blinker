@@ -3,6 +3,8 @@
 
 # Blinker
 
+[![Join the chat at https://gitter.im/jek/blinker](https://badges.gitter.im/jek/blinker.svg)](https://gitter.im/jek/blinker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Blinker provides a fast dispatching system that allows any number of
 interested parties to subscribe to events, or "signals".
 
