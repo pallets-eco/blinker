@@ -9,31 +9,33 @@ interested parties to subscribe to events, or "signals".
 Signal receivers can subscribe to specific senders or receive signals
 sent by any sender.
 
-    >>> from blinker import signal
-    >>> started = signal('round-started')
-    >>> def each(round):
-    ...     print "Round %s!" % round
-    ...
-    >>> started.connect(each)
-    
-    >>> def round_two(round):
-    ...     print "This is round two."
-    ...
-    >>> started.connect(round_two, sender=2)
-  
-    >>> for round in range(1, 4):
-    ...     started.send(round)
-    ...
-    Round 1!
-    Round 2!
-    This is round two.
-    Round 3!
+```python
+>>> from blinker import signal
+>>> started = signal('round-started')
+>>> def each(round):
+...     print "Round %s!" % round
+...
+>>> started.connect(each)
+
+>>> def round_two(round):
+...     print "This is round two."
+...
+>>> started.connect(round_two, sender=2)
+
+>>> for round in range(1, 4):
+...     started.send(round)
+...
+Round 1!
+Round 2!
+This is round two.
+Round 3!
+```
 
 See the [Blinker documentation](https://pythonhosted.org/blinker/) for more information.
 
 ## Requirements
 
-Blinker requires Python 2.4 or higher, Python 3.0 or higher, or Jython 2.5 or higher.
+Blinker requires Python 2.7, Python 3.4 or higher, or Jython 2.5 or higher.
 
 ## Changelog Summary
 
