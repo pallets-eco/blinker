@@ -36,7 +36,7 @@ except:
 
         def __reduce__(self):
             if self.default_factory is None:
-                args = tuple()
+                args = ()
             else:
                 args = self.default_factory,
             return type(self), args, None, None, self.items()
