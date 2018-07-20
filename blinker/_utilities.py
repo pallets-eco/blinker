@@ -117,6 +117,8 @@ def hashable_identity(obj):
         return (id(obj.im_func), id(obj.im_self))
     elif isinstance(obj, text):
         return obj
+    elif isinstance(obj, int):
+        return obj
     else:
         return id(obj)
 
