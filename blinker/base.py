@@ -416,7 +416,7 @@ class NamedSignal(Signal):
 
     def __repr__(self):
         base = Signal.__repr__(self)
-        return "%s; %r>" % (base[:-1], self.name)
+        return "{}; {!r}>".format(base[:-1], self.name)
 
 
 class Namespace(dict):
