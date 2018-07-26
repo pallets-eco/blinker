@@ -17,6 +17,7 @@ setup(name="blinker",
       long_description=readme,
       license='MIT License',
       url='http://pythonhosted.org/blinker/',
+      python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
