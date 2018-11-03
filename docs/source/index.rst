@@ -17,7 +17,7 @@ The core of Blinker is quite small but provides powerful features:
 
 Blinker was written by Jason Kirtand and is provided under the MIT
 License. The library supports Python 2.7 and Python 3.4 or later;
-or Jython 2.5 or later; or PyPy 1.6 or later.
+or Jython 2.7 or later; or PyPy 2.7 or later.
 
 
 Decoupling With Named Signals

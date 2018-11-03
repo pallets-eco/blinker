@@ -35,7 +35,7 @@ See the [Blinker documentation](https://pythonhosted.org/blinker/) for more info
 
 ## Requirements
 
-Blinker requires Python 2.7, Python 3.4 or higher, or Jython 2.5 or higher.
+Blinker requires Python 2.7, Python 3.4 or higher, or Jython 2.7 or higher.
 
 ## Changelog Summary
 
