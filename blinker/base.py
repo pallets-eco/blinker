@@ -354,9 +354,9 @@ class Signal(object):
             self._by_receiver[receiver_id].discard(sender_id)
 
     def _cleanup_bookkeeping(self):
-        """Prune unused sender/receiver bookeeping. Not threadsafe.
+        """Prune unused sender/receiver bookkeeping. Not threadsafe.
 
-        Connecting & disconnecting leave behind a small amount of bookeeping
+        Connecting & disconnecting leave behind a small amount of bookkeeping
         for the receiver and sender values. Typical workloads using Blinker,
         for example in most web apps, Flask, CLI scripts, etc., are not
         adversely affected by this bookkeeping.
@@ -364,10 +364,10 @@ class Signal(object):
         With a long-running Python process performing dynamic signal routing
         with high volume- e.g. connecting to function closures, "senders" are
         all unique object instances, and doing all of this over and over- you
-        may see memory usage will grow due to extraneous bookeeping. (An empty
+        may see memory usage will grow due to extraneous bookkeeping. (An empty
         set() for each stale sender/receiver pair.)
 
-        This method will prune that bookeeping away, with the caveat that such
+        This method will prune that bookkeeping away, with the caveat that such
         pruning is not threadsafe. The risk is that cleanup of a fully
         disconnected receiver/sender pair occurs while another thread is
         connecting that same pair. If you are in the highly dynamic, unique
