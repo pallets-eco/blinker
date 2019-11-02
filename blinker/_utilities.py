@@ -36,7 +36,7 @@ except:
 
         def __reduce__(self):
             if self.default_factory is None:
-                args = tuple()
+                args = ()
             else:
                 args = self.default_factory,
             return type(self), args, None, None, self.items()
@@ -53,19 +53,9 @@ except:
                               copy.deepcopy(self.items()))
 
         def __repr__(self):
-            return 'defaultdict(%s, %s)' % (self.default_factory,
+            return 'defaultdict({}, {})'.format(self.default_factory,
                                             dict.__repr__(self))
 
-
-try:
-    from contextlib import contextmanager
-except ImportError:
-    def contextmanager(fn):
-        def oops(*args, **kw):
-            raise RuntimeError("Python 2.5 or above is required to use "
-                               "context managers.")
-        oops.__name__ = fn.__name__
-        return oops
 
 class _symbol(object):
 

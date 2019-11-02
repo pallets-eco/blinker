@@ -48,10 +48,10 @@ def test_meta_connect():
     sig = blinker.Signal()
     sig.connect(receiver)
 
-    assert sentinel == [dict(sender=sig,
-                             receiver_arg=receiver,
-                             sender_arg=blinker.ANY,
-                             weak_arg=True)]
+    assert sentinel == [{'sender': sig,
+                         'receiver_arg': receiver,
+                         'sender_arg': blinker.ANY,
+                         'weak_arg': True}]
 
     blinker.receiver_connected._clear_state()
 
@@ -78,7 +78,7 @@ def _test_signal_signals(sender):
 
         expected = ('receiver_connected',
                     sig,
-                    dict(receiver=receiver, sender=sender, weak=weak))
+                    {'receiver': receiver, 'sender': sender, 'weak': weak})
 
         assert sentinel[-1] == expected
 
@@ -87,14 +87,14 @@ def _test_signal_signals(sender):
 
     expected = ('receiver_disconnected',
                 sig,
-                dict(receiver=receiver1, sender=sender))
+                {'receiver': receiver1, 'sender': sender})
     assert sentinel[-1] == expected
 
     # disconnect from ANY and all senders (implicit disconnect signature)
     sig.disconnect(receiver2)
     assert sentinel[-1] == ('receiver_disconnected',
                             sig,
-                            dict(receiver=receiver2, sender=blinker.ANY))
+                            {'receiver': receiver2, 'sender': blinker.ANY})
 
 
 def test_signal_signals_any_sender():
@@ -486,10 +486,3 @@ def test_named_blinker():
 def values_are_empty_sets_(dictionary):
     for val in dictionary.values():
         assert val == set()
-
-if sys.version_info < (2, 5):
-    def test_context_manager_warning():
-        sig = blinker.Signal()
-        receiver = lambda sender: None
-
-        assert_raises(RuntimeError, sig.connected_to, receiver)
