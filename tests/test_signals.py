@@ -4,7 +4,7 @@ import time
 
 import blinker
 
-from nose.tools import assert_raises
+import pytest
 
 
 jython = sys.platform.startswith('java')
@@ -227,7 +227,7 @@ def test_meta_connect_failure():
         pass
     sig = blinker.Signal()
 
-    assert_raises(TypeError, sig.connect, receiver)
+    pytest.raises(TypeError, sig.connect, receiver)
     assert not sig.receivers
     assert not sig._by_receiver
     assert sig._by_sender == {blinker.base.ANY_ID: set()}
