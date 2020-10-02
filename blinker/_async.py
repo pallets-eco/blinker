@@ -4,9 +4,9 @@ from blinker.base import Signal
 
 
 try:
-    schedule = asyncio.ensure_future
+    schedule = asyncio.create_task
 except AttributeError:
-    schedule = asyncio.async
+    schedule = asyncio.ensure_future
 
 
 @asyncio.coroutine
