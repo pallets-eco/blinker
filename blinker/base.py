@@ -8,12 +8,12 @@ each manages its own receivers and message emission.
 The :func:`signal` function provides singleton behavior for named signals.
 
 """
+from contextlib import contextmanager
 from warnings import warn
 from weakref import WeakValueDictionary
 
 from blinker._utilities import (
     WeakTypes,
-    contextmanager,
     defaultdict,
     hashable_identity,
     lazy_property,
@@ -250,6 +250,14 @@ class Signal(object):
         :param \*\*kwargs: Data to be sent to receivers.
 
         """
+        if not self.receivers:
+            # Ensure correct signature even on no-op sends, disable with -O
+            # for lowest possible cost.
+            if __debug__ and sender and len(sender) > 1:
+                raise TypeError('send() accepts only one positional '
+                                'argument, %s given' % len(sender))
+            return []
+
         # Using '*sender' rather than 'sender=None' allows 'sender' to be
         # used as a keyword argument- i.e. it's an invisible name in the
         # function signature.
@@ -260,11 +268,8 @@ class Signal(object):
                             '%s given' % len(sender))
         else:
             sender = sender[0]
-        if not self.receivers:
-            return []
-        else:
-            return [(receiver, receiver(sender, **kwargs))
-                    for receiver in self.receivers_for(sender)]
+        return [(receiver, receiver(sender, **kwargs))
+                for receiver in self.receivers_for(sender)]
 
     def send_async(self, *sender, **kwargs):
         """Send and collect results from connected functions and coroutines.
@@ -360,9 +365,9 @@ class Signal(object):
             self._by_receiver[receiver_id].discard(sender_id)
 
     def _cleanup_bookkeeping(self):
-        """Prune unused sender/receiver bookeeping. Not threadsafe.
+        """Prune unused sender/receiver bookkeeping. Not threadsafe.
 
-        Connecting & disconnecting leave behind a small amount of bookeeping
+        Connecting & disconnecting leave behind a small amount of bookkeeping
         for the receiver and sender values. Typical workloads using Blinker,
         for example in most web apps, Flask, CLI scripts, etc., are not
         adversely affected by this bookkeeping.
@@ -370,10 +375,10 @@ class Signal(object):
         With a long-running Python process performing dynamic signal routing
         with high volume- e.g. connecting to function closures, "senders" are
         all unique object instances, and doing all of this over and over- you
-        may see memory usage will grow due to extraneous bookeeping. (An empty
+        may see memory usage will grow due to extraneous bookkeeping. (An empty
         set() for each stale sender/receiver pair.)
 
-        This method will prune that bookeeping away, with the caveat that such
+        This method will prune that bookkeeping away, with the caveat that such
         pruning is not threadsafe. The risk is that cleanup of a fully
         disconnected receiver/sender pair occurs while another thread is
         connecting that same pair. If you are in the highly dynamic, unique
@@ -422,7 +427,7 @@ class NamedSignal(Signal):
 
     def __repr__(self):
         base = Signal.__repr__(self)
-        return "%s; %r>" % (base[:-1], self.name)
+        return "{}; {!r}>".format(base[:-1], self.name)
 
 
 class Namespace(dict):

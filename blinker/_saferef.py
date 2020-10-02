@@ -198,7 +198,7 @@ class BoundMethodWeakref(object):
 
     def __str__(self):
         """Give a friendly representation of the object."""
-        return "%s(%s.%s)" % (
+        return "{}({}.{})".format(
             self.__class__.__name__,
             self.self_name,
             self.func_name,
