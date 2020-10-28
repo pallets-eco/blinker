@@ -90,7 +90,7 @@ class Signal(object):
         self._weak_senders = {}
 
     def connect(self, receiver, sender=ANY, weak=True):
-        """Connect *receiver* to signal events sent by *sender*.
+        r"""Connect *receiver* to signal events sent by *sender*.
 
         :param receiver: A callable.  Will be invoked by :meth:`send` with
           `sender=` as a single positional argument and any \*\*kwargs that
@@ -158,7 +158,7 @@ class Signal(object):
         return receiver
 
     def connect_via(self, sender, weak=False):
-        """Connect the decorated function as a receiver for *sender*.
+        r"""Connect the decorated function as a receiver for *sender*.
 
         :param sender: Any object or :obj:`ANY`.  The decorated function
           will only receive :meth:`send` emissions sent by *sender*.  If
@@ -239,7 +239,7 @@ class Signal(object):
         return self.connected_to(receiver, sender)
 
     def send(self, *sender, **kwargs):
-        """Emit this signal on behalf of *sender*, passing on \*\*kwargs.
+        r"""Emit this signal on behalf of *sender*, passing on \*\*kwargs.
 
         Returns a list of 2-tuples, pairing receivers with their return
         value. The ordering of receiver notification is undefined.
