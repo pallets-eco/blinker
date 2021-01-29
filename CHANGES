@@ -10,6 +10,8 @@ Not yet released.
 - Verified Python 3.7 support (no changes needed).
 - Verified Python 3.6 support (no changes needed).
 - Verified Python 3.5 support (no changes needed).
+- Added Signal.send_async, dispatching to an arbitrary mix of connected
+  coroutines and receiver functions.
 
 Version 1.4
 -----------

@@ -271,6 +271,17 @@ class Signal(object):
         return [(receiver, receiver(sender, **kwargs))
                 for receiver in self.receivers_for(sender)]
 
+    def send_async(self, *sender, **kwargs):
+        """Send and collect results from connected functions and coroutines.
+
+        As `Signal.send`, but also schedules any coroutines connected to the
+        signal, and uniformly presents all receiver return values as futures,
+        even if one or more receivers are regular functions.
+
+        Available only if asyncio and `yield from` are present.
+        """
+        raise NotImplementedError("asyncio support unavailable")
+
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
 

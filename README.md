@@ -9,6 +9,9 @@ interested parties to subscribe to events, or "signals".
 Signal receivers can subscribe to specific senders or receive signals
 sent by any sender.
 
+It supports dispatching to an arbitrary mix of connected
+coroutines and receiver functions.
+
 ```python
 >>> from blinker import signal
 >>> started = signal('round-started')

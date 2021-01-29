@@ -14,6 +14,7 @@ The core of Blinker is quite small but provides powerful features:
  - sending arbitrary data payloads
  - collecting return values from signal receivers
  - thread safety
+ - coroutines as signal receivers
 
 Blinker was written by Jason Kirtand and is provided under the MIT
 License. The library supports Python 2.7 and Python 3.5 or later;
@@ -92,6 +93,35 @@ connected to ``complete`` yet, and that's a-ok.  Calling
 :meth:`~Signal.send` on a signal with no receivers will result in no
 notifications being sent, and these no-op sends are optimized to be as
 inexpensive as possible.
+
+
+Async support
+-------------
+
+Send a signal asynchronously to coroutine receivers.
+
+  >>> async def receiver_a(sender):
+  ...     return 'value a'
+  ...
+  >>> async def receiver_b(sender):
+  ...     return 'value b'
+  ...
+  >>> ready = signal('ready')
+  >>> ready.connect(receiver_a)
+  >>> ready.connect(receiver_b)
+  ...
+  >>> async def collect():
+  ...     return ready.send_async('sender')
+  ...
+  >>> loop = asyncio.get_event_loop()
+  >>> results = loop.run_until_complete(collect())
+  >>> len(results)
+  2
+  >>> [v.result() for r, v in results][0]
+  value a
+
+Dispatching to an arbitrary mix of connected
+coroutines and receiver functions is supported.
 
 
 Subscribing to Specific Senders
