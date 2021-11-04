@@ -6,13 +6,11 @@ import blinker
 def test_send_async():
     calls = []
 
-    @asyncio.coroutine
-    def receiver_a(sender):
+    async def receiver_a(sender):
         calls.append(receiver_a)
         return 'value a'
 
-    @asyncio.coroutine
-    def receiver_b(sender):
+    async def receiver_b(sender):
         calls.append(receiver_b)
         return 'value b'
 
@@ -25,8 +23,7 @@ def test_send_async():
     sig.connect(receiver_b)
     sig.connect(receiver_c)
 
-    @asyncio.coroutine
-    def collect():
+    async def collect():
         return sig.send_async()
 
     loop = asyncio.get_event_loop()

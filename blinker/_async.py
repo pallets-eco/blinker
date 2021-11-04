@@ -9,8 +9,7 @@ except AttributeError:
     schedule = asyncio.ensure_future
 
 
-@asyncio.coroutine
-def _wrap_plain_value(value):
+async def _wrap_plain_value(value):
     """Pass through a coroutine *value* or wrap a plain value."""
     if asyncio.iscoroutine(value):
         value = yield from value
@@ -25,4 +24,3 @@ def send_async(self, *sender, **kwargs):
 
 send_async.__doc__ = Signal.send_async.__doc__
 Signal.send_async = send_async
-
