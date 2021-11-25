@@ -93,7 +93,7 @@ class Signal(object):
         r"""Connect *receiver* to signal events sent by *sender*.
 
         :param receiver: A callable.  Will be invoked by :meth:`send` with
-          `sender=` as a single positional argument and any \*\*kwargs that
+          `sender=` as a single positional argument and any \\*\\*kwargs that
           were provided to a call to :meth:`send`.
 
         :param sender: Any object or :obj:`ANY`, defaults to ``ANY``.
@@ -171,7 +171,7 @@ class Signal(object):
           :meth:`connect`, this defaults to False.
 
         The decorated function will be invoked by :meth:`send` with
-          `sender=` as a single positional argument and any \*\*kwargs that
+          `sender=` as a single positional argument and any \\*\\*kwargs that
           were provided to the call to :meth:`send`.
 
 
@@ -239,15 +239,15 @@ class Signal(object):
         return self.connected_to(receiver, sender)
 
     def send(self, *sender, **kwargs):
-        r"""Emit this signal on behalf of *sender*, passing on \*\*kwargs.
+        r"""Emit this signal on behalf of *sender*, passing on \\*\\*kwargs.
 
         Returns a list of 2-tuples, pairing receivers with their return
         value. The ordering of receiver notification is undefined.
 
-        :param \*sender: Any object or ``None``.  If omitted, synonymous
+        :param \\*sender: Any object or ``None``.  If omitted, synonymous
           with ``None``.  Only accepts one positional argument.
 
-        :param \*\*kwargs: Data to be sent to receivers.
+        :param \\*\\*kwargs: Data to be sent to receivers.
 
         """
         if not self.receivers:
