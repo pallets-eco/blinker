@@ -15,6 +15,7 @@ setup(name="blinker",
       description='Fast, simple object-to-object and broadcast signaling',
       keywords='signal emit events broadcast',
       long_description=readme,
+      long_description_content_type="text/x-rst",
       license='MIT License',
       url='https://blinker.readthedocs.io',
       project_urls={
