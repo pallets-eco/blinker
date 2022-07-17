@@ -307,3 +307,9 @@ Changes
 =======
 
 .. include:: ../CHANGES.rst
+
+
+MIT License
+===========
+
+.. include:: ../LICENSE.rst
