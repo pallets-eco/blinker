@@ -1,7 +1,6 @@
-include LICENSE.rst
-include README.rst
 include CHANGES.rst
-recursive-include tests *py
-recursive-include docs/source *rst *py
-recursive-include docs/text *txt
-recursive-include docs/html *html *txt *png *css *js *inv
+include tox.ini
+graft docs
+prune docs/_build
+graft tests
+global-exclude *.pyc
