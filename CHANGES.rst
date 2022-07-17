@@ -1,7 +1,7 @@
 Version 1.5
 -----------
 
-Unreleased
+Released 2022-07-17
 
 -   Support Python >= 3.7 and PyPy. Python 2, Python < 3.7, and Jython
     may continue to work, but the next release will make incompatible
