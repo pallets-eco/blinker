@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.org/jek/blinker.svg?branch=master)](https://travis-ci.org/jek/blinker)
-
-
 # Blinker
 
 Blinker provides a fast dispatching system that allows any number of
