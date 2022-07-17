@@ -6,7 +6,7 @@ interested parties to subscribe to events, or "signals".
 Signal receivers can subscribe to specific senders or receive signals
 sent by any sender.
 
-```python
+```pycon
 >>> from blinker import signal
 >>> started = signal('round-started')
 >>> def each(round):
