@@ -7,9 +7,10 @@ Version 1.5dev
 
 Not yet released.
 
-- Verified Python 3.7 support (no changes needed).
-- Verified Python 3.6 support (no changes needed).
-- Verified Python 3.5 support (no changes needed).
+-   Support Python >= 3.7 and PyPy. Python 2, Python < 3.7, and Jython
+    may continue to work, but the next release will make incompatible
+    changes.
+
 
 Version 1.4
 -----------
