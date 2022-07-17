@@ -17,6 +17,9 @@ setup(name="blinker",
       long_description=readme,
       license='MIT License',
       url='https://pythonhosted.org/blinker/',
+      project_urls={
+        'Source': 'https://github.com/jek/blinker',
+      },
       python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
