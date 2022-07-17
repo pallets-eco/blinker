@@ -29,39 +29,3 @@ Round 3!
 ```
 
 See the [Blinker documentation](https://pythonhosted.org/blinker/) for more information.
-
-## Changelog Summary
-
-1.3 (July 3, 2013)
-
- - The global signal stash behind blinker.signal() is now backed by a
-   regular name-to-Signal dictionary. Previously, weak references were
-   held in the mapping and ephemeral usage in code like
-   ``signal('foo').connect(...)`` could have surprising program behavior
-   depending on import order of modules.
- - blinker.Namespace is now built on a regular dict. Use
-   blinker.WeakNamespace for the older, weak-referencing behavior.
- - Signal.connect('text-sender') uses an alternate hashing strategy to
-   avoid sharp edges in text identity.
-
-1.2 (October 26, 2011)
-
- - Added Signal.receiver_connected and Signal.receiver_disconnected
-   per-Signal signals.
- - Deprecated the global 'receiver_connected' signal.
- - Verified Python 3.2 support (no changes needed!)
-
-1.1 (July 21, 2010)
-
- - Added ``@signal.connect_via(sender)`` decorator
- - Added ``signal.connected_to`` shorthand name for the
-   ``temporarily_connected_to`` context manager.
-
-1.0 (March 28, 2010)
-
- - Python 3.x compatibility
-
-0.9 (February 26, 2010)
-
- - Sphinx docs, project website
- - Added ``with a_signal.temporarily_connected_to(receiver): ...`` support

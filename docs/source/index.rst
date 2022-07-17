@@ -298,5 +298,7 @@ Named Signals
    :members: signal
 
 
-.. include:: ../../CHANGES
+Changes
+=======
 
+.. include:: ../../CHANGES.rst
