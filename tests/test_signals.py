@@ -10,11 +10,6 @@ import pytest
 jython = sys.platform.startswith('java')
 pypy = hasattr(sys, 'pypy_version_info')
 
-try:
-    from _test_async import test_send_async
-except (SyntaxError, ImportError):
-    pass
-
 
 def collect_acyclic_refs():
     # cpython releases these immediately without a collection
