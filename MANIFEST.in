@@ -1,5 +1,5 @@
 include LICENSE.rst
-include README.md
+include README.rst
 include CHANGES.rst
 recursive-include tests *py
 recursive-include docs/source *rst *py
