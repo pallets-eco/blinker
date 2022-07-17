@@ -1,5 +1,10 @@
+.. rst-class:: hide-header
+
 Blinker Documentation
 =====================
+
+.. image:: _static/blinker-named.png
+    :align: center
 
 Blinker provides fast & simple object-to-object and broadcast
 signaling for Python objects.
@@ -25,7 +30,7 @@ Decoupling With Named Signals
 
 Named signals are created with :func:`signal`:
 
-.. doctest::
+.. code-block:: python
 
   >>> from blinker import signal
   >>> initialized = signal('initialized')
@@ -45,7 +50,7 @@ Subscribing to Signals
 the signal is emitted.  Connected functions are always passed the
 object that caused the signal to be emitted.
 
-.. doctest::
+.. code-block:: python
 
   >>> def subscriber(sender):
   ...     print("Got a signal sent by %r" % sender)
@@ -66,7 +71,7 @@ about to process something, and ``complete`` when it is done.  It
 passes ``self`` to the :meth:`~Signal.send` method, signifying that
 that particular instance was responsible for emitting the signal.
 
-.. doctest::
+.. code-block:: python
 
   >>> class Processor:
   ...    def __init__(self, name):
@@ -102,7 +107,7 @@ any sender emits it.  The :meth:`Signal.connect` function accepts an
 optional argument to restrict the subscription to one specific sending
 object:
 
-.. doctest::
+.. code-block:: python
 
   >>> def b_subscriber(sender):
   ...     print("Caught signal from processor_b.")
@@ -115,7 +120,7 @@ object:
 This function has been subscribed to ``ready`` but only when sent by
 ``processor_b``:
 
-.. doctest::
+.. code-block:: python
 
   >>> processor_a.go()
   Got a signal sent by <Processor a>
@@ -132,7 +137,7 @@ Sending and Receiving Data Through Signals
 Additional keyword arguments can be passed to :meth:`~Signal.send`.
 These will in turn be passed to the connected functions:
 
-.. doctest::
+.. code-block:: python
 
   >>> send_data = signal('send-data')
   >>> @send_data.connect
@@ -147,7 +152,7 @@ The return value of :meth:`~Signal.send` collects the return values of
 each connected function as a list of (``receiver function``, ``return
 value``) pairs:
 
-.. doctest::
+.. code-block:: python
 
   >>> result
   [(<function receive_data at 0x...>, 'received!')]
@@ -161,7 +166,7 @@ unique signal each time it is invoked.  For example, an alternative
 implementation of the Processor from above might provide the
 processing signals as class attributes:
 
-.. doctest::
+.. code-block:: python
 
   >>> from blinker import Signal
   >>> class AltProcessor:
@@ -187,7 +192,7 @@ You may have noticed the return value of :meth:`~Signal.connect` in
 the console output in the sections above.  This allows ``connect`` to
 be used as a decorator on functions:
 
-.. doctest::
+.. code-block:: python
 
   >>> apc = AltProcessor('c')
   >>> @apc.on_complete.connect
@@ -202,7 +207,7 @@ While convenient, this form unfortunately does not allow the
 ``sender`` or ``weak`` arguments to be customized for the connected
 function.  For this, :meth:`~Signal.connect_via` can be used:
 
-.. doctest::
+.. code-block:: python
 
   >>> dice_roll = signal('dice_roll')
   >>> @dice_roll.connect_via(1)
@@ -224,7 +229,7 @@ expensive to compute, it can be more efficient to check to see if any
 receivers are connected first by testing the :attr:`~Signal.receivers`
 property:
 
-.. doctest::
+.. code-block:: python
 
   >>> bool(signal('ready').receivers)
   True
@@ -236,7 +241,7 @@ property:
 Checking for a receiver listening for a particular sender is also
 possible:
 
-.. doctest::
+.. code-block:: python
 
   >>> signal('ready').has_receivers_for(processor_a)
   True
@@ -301,4 +306,4 @@ Named Signals
 Changes
 =======
 
-.. include:: ../../CHANGES.rst
+.. include:: ../CHANGES.rst

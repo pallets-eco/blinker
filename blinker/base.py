@@ -195,14 +195,7 @@ class Signal(object):
         the duration of the ``with`` block, and will be disconnected
         automatically when exiting the block:
 
-        .. testsetup::
-
-          from __future__ import with_statement
-          from blinker import Signal
-          on_ready = Signal()
-          receiver = lambda sender: None
-
-        .. testcode::
+        .. code-block:: python
 
           with on_ready.connected_to(receiver):
              # do stuff
