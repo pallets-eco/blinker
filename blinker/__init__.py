@@ -6,6 +6,7 @@ from blinker.base import (
     WeakNamespace,
     receiver_connected,
     signal,
+    namespace,
 )
 
 __all__ = [
@@ -16,6 +17,7 @@ __all__ = [
     'WeakNamespace',
     'receiver_connected',
     'signal',
+    'namespace',
     ]
 
 

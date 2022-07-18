@@ -449,4 +449,5 @@ class WeakNamespace(WeakValueDictionary):
             return self.setdefault(name, NamedSignal(name, doc))
 
 
-signal = Namespace().signal
+namespace = Namespace()
+signal = namespace.signal
