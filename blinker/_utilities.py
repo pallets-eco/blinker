@@ -4,13 +4,6 @@ from blinker._saferef import BoundMethodWeakref
 
 
 try:
-    callable
-except NameError:
-    def callable(object):
-        return hasattr(object, '__call__')
-
-
-try:
     from collections import defaultdict
 except:
     class defaultdict(dict):
