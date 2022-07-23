@@ -272,6 +272,69 @@ See the documentation of the :obj:`receiver_connected` built-in signal
 for an example.
 
 
+Async receivers
+---------------
+
+Receivers can be coroutine functions which can be called and awaited
+via the :meth:`~Signal.send_async` method:
+
+.. code-block:: python
+
+   sig = blinker.Signal()
+
+   async def receiver():
+       ...
+
+   sig.connect(receiver)
+   await sig.send_async()
+
+This however requires that all receivers are awaitable which then
+precludes the usage of :meth:`~Signal.send`. To mix and match the
+:meth:`~Signal.send_async` method takes a ``_sync_wrapper`` argument
+such as:
+
+.. code-block:: python
+
+   sig = blinker.Signal()
+
+   def receiver():
+       ...
+
+   sig.connect(receiver)
+
+   def wrapper(func):
+
+       async def inner(*args, **kwargs):
+           func(*args, **kwargs)
+
+       return inner
+
+   await sig.send_async(_sync_wrapper=wrapper)
+
+The equivalent usage for :meth:`~Signal.send` is via the
+``_async_wrapper`` argument. This usage is will depend on your event
+loop, and in the simple case whereby you aren't running within an
+event loop the following example can be used:
+
+.. code-block:: python
+
+   sig = blinker.Signal()
+
+   async def receiver():
+       ...
+
+   sig.connect(receiver)
+
+   def wrapper(func):
+
+       def inner(*args, **kwargs):
+           asyncio.run(func(*args, **kwargs))
+
+       return inner
+
+   await sig.send(_async_wrapper=wrapper)
+
+
 API Documentation
 -----------------
 
