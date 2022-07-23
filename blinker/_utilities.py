@@ -40,18 +40,12 @@ class symbol(object):
             return cls.symbols.setdefault(name, _symbol(name))
 
 
-try:
-    text = (str, unicode)
-except NameError:
-    text = str
-
-
 def hashable_identity(obj):
     if hasattr(obj, '__func__'):
         return (id(obj.__func__), id(obj.__self__))
     elif hasattr(obj, 'im_func'):
         return (id(obj.im_func), id(obj.im_self))
-    elif isinstance(obj, text):
+    elif isinstance(obj, str):
         return obj
     else:
         return id(obj)
