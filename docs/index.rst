@@ -21,8 +21,7 @@ The core of Blinker is quite small but provides powerful features:
  - thread safety
 
 Blinker was written by Jason Kirtand and is provided under the MIT
-License. The library supports Python 2.7 and Python 3.5 or later;
-or Jython 2.7 or later; or PyPy 2.7 or later.
+License. The library supports Python 3.7 or later; or PyPy3.9 or later.
 
 
 Decoupling With Named Signals
@@ -53,7 +52,7 @@ object that caused the signal to be emitted.
 .. code-block:: python
 
   >>> def subscriber(sender):
-  ...     print("Got a signal sent by %r" % sender)
+  ...     print(f"Got a signal sent by {sender!r}")
   ...
   >>> ready = signal('ready')
   >>> ready.connect(subscriber)
@@ -85,7 +84,7 @@ that particular instance was responsible for emitting the signal.
   ...        complete.send(self)
   ...
   ...    def __repr__(self):
-  ...        return '<Processor %s>' % self.name
+  ...        return f'<Processor {self.name}>'
   ...
   >>> processor_a = Processor('a')
   >>> processor_a.go()
@@ -142,7 +141,7 @@ These will in turn be passed to the connected functions:
   >>> send_data = signal('send-data')
   >>> @send_data.connect
   ... def receive_data(sender, **kw):
-  ...     print("Caught signal from %r, data %r" % (sender, kw))
+  ...     print(f"Caught signal from {sender!r}, data {kw!r}")
   ...     return 'received!'
   ...
   >>> result = send_data.send('anonymous', abc=123)
@@ -182,7 +181,7 @@ processing signals as class attributes:
   ...        self.on_complete.send(self)
   ...
   ...    def __repr__(self):
-  ...        return '<AltProcessor %s>' % self.name
+  ...        return f'<AltProcessor {self.name}>'
   ...
 
 ``connect`` as a Decorator
@@ -197,7 +196,7 @@ be used as a decorator on functions:
   >>> apc = AltProcessor('c')
   >>> @apc.on_complete.connect
   ... def completed(sender):
-  ...     print "AltProcessor %s completed!" % sender.name
+  ...     print f"AltProcessor {sender.name} completed!"
   ...
   >>> apc.go()
   Alternate processing.
@@ -214,7 +213,7 @@ function.  For this, :meth:`~Signal.connect_via` can be used:
   ... @dice_roll.connect_via(3)
   ... @dice_roll.connect_via(5)
   ... def odd_subscriber(sender):
-  ...     print("Observed dice roll %r." % sender)
+  ...     print(f"Observed dice roll {sender!r}.")
   ...
   >>> result = dice_roll.send(3)
   Observed dice roll 3.
