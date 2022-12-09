@@ -8,7 +8,7 @@ alabaster==0.7.12
     # via sphinx
 babel==2.10.3
     # via sphinx
-certifi==2022.6.15
+certifi==2022.12.7
     # via requests
 charset-normalizer==2.1.0
     # via requests
@@ -27,7 +27,7 @@ packaging==21.3
     #   pallets-sphinx-themes
     #   sphinx
 pallets-sphinx-themes==2.0.2
-    # via -r docs/requirements.in
+    # via -r requirements.in
 pygments==2.12.0
     # via sphinx
 pyparsing==3.0.9
@@ -40,7 +40,7 @@ snowballstemmer==2.2.0
     # via sphinx
 sphinx==5.0.2
     # via
-    #   -r docs/requirements.in
+    #   -r requirements.in
     #   pallets-sphinx-themes
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
