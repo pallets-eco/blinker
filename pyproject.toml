@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blinker"
+license = {text = "MIT License"}
+authors = [{name = "Jason Kirtland", email = "jek@discorporate.us"}]
+maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com"}]
+description = "Fast, simple object-to-object and broadcast signaling"
+keywords = [
+    "signal",
+    "emit",
+    "events",
+    "broadcast",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries",
+]
+requires-python = ">= 3.7"
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://blinker.readthedocs.io"
+Documentation = "https://blinker.readthedocs.io"
+"Source Code" = "https://github.com/pallets-eco/blinker/"
+"Issue Tracker" = "https://github.com/pallets-eco/blinker/issues/"
+Chat = "https://discord.gg/pallets"
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
+[tool.setuptools]
+license-files = ["LICENSE.rst"]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "blinker.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]
