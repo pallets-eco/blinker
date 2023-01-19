@@ -60,14 +60,14 @@ class TestSaferef(unittest.TestCase):
     def setUp(self):
         ts = []
         ss = []
-        for x in range(100):
+        for _ in range(100):
             t = _Sample1()
             ts.append(t)
             s = safe_ref(t.x, self._closure)
             ss.append(s)
         ts.append(_sample2)
         ss.append(safe_ref(_sample2, self._closure))
-        for x in range(30):
+        for _ in range(30):
             t = _Sample3()
             ts.append(t)
             s = safe_ref(t, self._closure)

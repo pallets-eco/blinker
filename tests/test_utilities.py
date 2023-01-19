@@ -19,6 +19,6 @@ def test_symbols():
 def test_pickled_symbols():
     foo = symbol("foo")
 
-    for protocol in 0, 1, 2:
+    for _ in 0, 1, 2:
         roundtrip = pickle.loads(pickle.dumps(foo))
         assert roundtrip is foo

@@ -5,7 +5,9 @@ def test_temp_connection():
     sig = Signal()
 
     canary = []
-    receiver = lambda sender: canary.append(sender)
+
+    def receiver(sender):
+        canary.append(sender)
 
     sig.send(1)
     with sig.connected_to(receiver):
@@ -20,7 +22,9 @@ def test_temp_connection_for_sender():
     sig = Signal()
 
     canary = []
-    receiver = lambda sender: canary.append(sender)
+
+    def receiver(sender):
+        canary.append(sender)
 
     with sig.connected_to(receiver, sender=2):
         sig.send(1)
@@ -34,7 +38,9 @@ def test_temp_connection_failure():
     sig = Signal()
 
     canary = []
-    receiver = lambda sender: canary.append(sender)
+
+    def receiver(sender):
+        canary.append(sender)
 
     class Failure(Exception):
         pass
