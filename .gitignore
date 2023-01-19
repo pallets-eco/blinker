@@ -11,3 +11,6 @@ __pycache__/
 /*.egg-info/
 /dist/
 /docs/_build/
+.python-version
+# prefix for devs private stuff kept with the project
+private_*
