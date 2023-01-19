@@ -12,12 +12,12 @@ sent by any sender.
     >>> from blinker import signal
     >>> started = signal('round-started')
     >>> def each(round):
-    ...     print "Round %s!" % round
+    ...     print(f"Round {round}")
     ...
     >>> started.connect(each)
 
     >>> def round_two(round):
-    ...     print "This is round two."
+    ...     print("This is round two.")
     ...
     >>> started.connect(round_two, sender=2)
 
