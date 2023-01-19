@@ -3,9 +3,19 @@ on:
   push:
     branches:
       - main
+      - '*.x'
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '*.rst'
   pull_request:
     branches:
       - main
+      - '*.x'
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '*.rst'
 jobs:
   tests:
     name: ${{ matrix.name }}
@@ -14,23 +24,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {name: '3.11', python: '3.11-dev', tox: py311}
-          - {name: '3.10', python: '3.10', tox: py310}
-          - {name: '3.9', python: '3.9', tox: py39}
-          - {name: '3.8', python: '3.8', tox: py38}
-          - {name: '3.7', python: '3.7', tox: py37}
-          - {name: 'PyPy', python: 'pypy-3.9', tox: pypy39}
+          - {name: Linux, python: '3.11', os: ubuntu-latest, tox: py311}
+          - {name: Windows, python: '3.11', os: windows-latest, tox: py311}
+          - {name: Mac, python: '3.11', os: macos-latest, tox: py311}
+          - {name: '3.12-dev', python: '3.12-dev', os: ubuntu-latest, tox: py312}
+          - {name: '3.10', python: '3.10', os: ubuntu-latest, tox: py310}
+          - {name: '3.9', python: '3.9', os: ubuntu-latest, tox: py39}
+          - {name: '3.8', python: '3.8', os: ubuntu-latest, tox: py38}
+          - {name: '3.7', python: '3.7', os: ubuntu-latest, tox: py37}
+          - {name: 'PyPy', python: 'pypy-3.9', os: ubuntu-latest, tox: pypy39}
+          - {name: Typing, python: '3.11', os: ubuntu-latest, tox: typing}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
           cache: 'pip'
-          cache-dependency-path: 'tests/requirements.txt'
+          cache-dependency-path: 'requirements/*.txt'
       - name: update pip
         run: |
           pip install -U wheel
           pip install -U setuptools
           python -m pip install -U pip
       - run: pip install tox
-      - run: tox -e ${{ matrix.tox }} -s false
+      - run: tox run -e ${{ matrix.tox }}
