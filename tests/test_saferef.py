@@ -37,7 +37,7 @@ import unittest
 from blinker._saferef import safe_ref
 
 
-class _Sample1(object):
+class _Sample1:
     def x(self):
         pass
 
@@ -46,7 +46,7 @@ def _sample2(obj):
     pass
 
 
-class _Sample3(object):
+class _Sample3:
     def __call__(self, obj):
         pass
 
@@ -77,9 +77,9 @@ class TestSaferef(unittest.TestCase):
         self.closure_count = 0
 
     def tearDown(self):
-        if hasattr(self, 'ts'):
+        if hasattr(self, "ts"):
             del self.ts
-        if hasattr(self, 'ss'):
+        if hasattr(self, "ss"):
             del self.ss
 
     def test_In(self):
@@ -98,7 +98,7 @@ class TestSaferef(unittest.TestCase):
         for s in self.ss:
             sd[s] = 1
         for t in self.ts:
-            if hasattr(t, 'x'):
+            if hasattr(t, "x"):
                 assert safe_ref(t.x) in sd
             else:
                 assert safe_ref(t) in sd
