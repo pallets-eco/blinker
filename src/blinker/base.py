@@ -1,4 +1,3 @@
-# -*- coding: utf-8; fill-column: 76 -*-
 """Signals and events.
 
 A small implementation of signals, inspired by a snippet of Django signal
@@ -8,26 +7,24 @@ each manages its own receivers and message emission.
 The :func:`signal` function provides singleton behavior for named signals.
 
 """
+from collections import defaultdict
 from contextlib import contextmanager
 from warnings import warn
 from weakref import WeakValueDictionary
 
-from blinker._utilities import (
-    WeakTypes,
-    defaultdict,
-    hashable_identity,
-    lazy_property,
-    reference,
-    symbol,
-    )
+from src.blinker._utilities import hashable_identity
+from src.blinker._utilities import lazy_property
+from src.blinker._utilities import reference
+from src.blinker._utilities import symbol
+from src.blinker._utilities import WeakTypes
 
 
-ANY = symbol('ANY')
+ANY = symbol("ANY")
 ANY.__doc__ = 'Token for "any sender".'
 ANY_ID = 0
 
 
-class Signal(object):
+class Signal:
     """A notification emitter."""
 
     #: An :obj:`ANY` convenience synonym, allows ``Signal.ANY``
@@ -136,22 +133,19 @@ class Signal(object):
                 del sender_ref
 
         # broadcast this connection.  if receivers raise, disconnect.
-        if ('receiver_connected' in self.__dict__ and
-            self.receiver_connected.receivers):
+        if "receiver_connected" in self.__dict__ and self.receiver_connected.receivers:
             try:
-                self.receiver_connected.send(self,
-                                             receiver=receiver,
-                                             sender=sender,
-                                             weak=weak)
+                self.receiver_connected.send(
+                    self, receiver=receiver, sender=sender, weak=weak
+                )
             except:
                 self.disconnect(receiver, sender)
                 raise
         if receiver_connected.receivers and self is not receiver_connected:
             try:
-                receiver_connected.send(self,
-                                        receiver_arg=receiver,
-                                        sender_arg=sender,
-                                        weak_arg=weak)
+                receiver_connected.send(
+                    self, receiver_arg=receiver, sender_arg=sender, weak_arg=weak
+                )
             except:
                 self.disconnect(receiver, sender)
                 raise
@@ -178,9 +172,11 @@ class Signal(object):
         .. versionadded:: 1.1
 
         """
+
         def decorator(fn):
             self.connect(fn, sender, weak)
             return fn
+
         return decorator
 
     @contextmanager
@@ -226,9 +222,10 @@ class Signal(object):
           deprecated in 1.2 and will be removed in a subsequent version.
 
         """
-        warn("temporarily_connected_to is deprecated; "
-             "use connected_to instead.",
-             DeprecationWarning)
+        warn(
+            "temporarily_connected_to is deprecated; " "use connected_to instead.",
+            DeprecationWarning,
+        )
         return self.connected_to(receiver, sender)
 
     def send(self, *sender, **kwargs):
@@ -246,8 +243,10 @@ class Signal(object):
             # Ensure correct signature even on no-op sends, disable with -O
             # for lowest possible cost.
             if __debug__ and sender and len(sender) > 1:
-                raise TypeError('send() accepts only one positional '
-                                'argument, %s given' % len(sender))
+                raise TypeError(
+                    "send() accepts only one positional "
+                    "argument, %s given" % len(sender)
+                )
             return []
 
         # Using '*sender' rather than 'sender=None' allows 'sender' to be
@@ -256,12 +255,15 @@ class Signal(object):
         if len(sender) == 0:
             sender = None
         elif len(sender) > 1:
-            raise TypeError('send() accepts only one positional argument, '
-                            '%s given' % len(sender))
+            raise TypeError(
+                "send() accepts only one positional argument, " "%s given" % len(sender)
+            )
         else:
             sender = sender[0]
-        return [(receiver, receiver(sender, **kwargs))
-                for receiver in self.receivers_for(sender)]
+        return [
+            (receiver, receiver(sender, **kwargs))
+            for receiver in self.receivers_for(sender)
+        ]
 
     def has_receivers_for(self, sender):
         """True if there is probably a receiver for *sender*.
@@ -285,8 +287,7 @@ class Signal(object):
         if self.receivers:
             sender_id = hashable_identity(sender)
             if sender_id in self._by_sender:
-                ids = (self._by_sender[ANY_ID] |
-                       self._by_sender[sender_id])
+                ids = self._by_sender[ANY_ID] | self._by_sender[sender_id]
             else:
                 ids = self._by_sender[ANY_ID].copy()
             for receiver_id in ids:
@@ -317,11 +318,11 @@ class Signal(object):
         receiver_id = hashable_identity(receiver)
         self._disconnect(receiver_id, sender_id)
 
-        if ('receiver_disconnected' in self.__dict__ and
-            self.receiver_disconnected.receivers):
-            self.receiver_disconnected.send(self,
-                                            receiver=receiver,
-                                            sender=sender)
+        if (
+            "receiver_disconnected" in self.__dict__
+            and self.receiver_disconnected.receivers
+        ):
+            self.receiver_disconnected.send(self, receiver=receiver, sender=sender)
 
     def _disconnect(self, receiver_id, sender_id):
         if sender_id == ANY_ID:
@@ -379,7 +380,8 @@ class Signal(object):
         self._by_receiver.clear()
 
 
-receiver_connected = Signal("""\
+receiver_connected = Signal(
+    """\
 Sent by a :class:`Signal` after a receiver connects.
 
 :argument: the Signal that was connected to
@@ -394,7 +396,8 @@ As of 1.2, individual signals have their own private
 :attr:`~Signal.receiver_disconnected` signals with a slightly simplified
 call signature.  This global signal is planned to be removed in 1.6.
 
-""")
+"""
+)
 
 
 class NamedSignal(Signal):
@@ -408,7 +411,7 @@ class NamedSignal(Signal):
 
     def __repr__(self):
         base = Signal.__repr__(self)
-        return "{}; {!r}>".format(base[:-1], self.name)
+        return f"{base[:-1]}; {self.name!r}>"
 
 
 class Namespace(dict):

@@ -33,26 +33,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 """Refactored 'safe reference from dispatcher.py"""
-
 import operator
 import sys
 import traceback
 import weakref
 
 
-try:
-    callable
-except NameError:
-    def callable(object):
-        return hasattr(object, '__call__')
-
-
-if sys.version_info < (3,):
-    get_self = operator.attrgetter('im_self')
-    get_func = operator.attrgetter('im_func')
-else:
-    get_self = operator.attrgetter('__self__')
-    get_func = operator.attrgetter('__func__')
+get_self = operator.attrgetter("__self__")
+get_func = operator.attrgetter("__func__")
 
 
 def safe_ref(target, on_delete=None):
@@ -78,14 +66,15 @@ def safe_ref(target, on_delete=None):
         if im_self is not None:
             # Turn a bound method into a BoundMethodWeakref instance.
             # Keep track of these instances for lookup by disconnect().
-            assert hasattr(target, 'im_func') or hasattr(target, '__func__'), (
-                "safe_ref target %r has im_self, but no im_func, "
-                "don't know how to create reference" % target)
+            assert hasattr(target, "im_func") or hasattr(target, "__func__"), (
+                f"safe_ref target {target!r} has im_self, but no im_func, "
+                "don't know how to create reference"
+            )
             reference = BoundMethodWeakref(target=target, on_delete=on_delete)
             return reference
 
 
-class BoundMethodWeakref(object):
+class BoundMethodWeakref:
     """'Safe' and reusable weak references to instance methods.
 
     BoundMethodWeakref objects provide a mechanism for referencing a
@@ -125,7 +114,7 @@ class BoundMethodWeakref(object):
         """Create new instance or return current instance.
 
         Basically this method of construction allows us to
-        short-circuit creation of references to already- referenced
+        short-circuit creation of references to already-referenced
         instance methods.  The key corresponding to the target is
         calculated, and if there is already an existing reference,
         that is returned, with its deletion_methods attribute updated.
@@ -138,7 +127,7 @@ class BoundMethodWeakref(object):
             current.deletion_methods.append(on_delete)
             return current
         else:
-            base = super(BoundMethodWeakref, cls).__new__(cls)
+            base = super().__new__(cls)
             cls._all_instances[key] = base
             base.__init__(target, on_delete, *arguments, **named)
             return base
@@ -159,6 +148,7 @@ class BoundMethodWeakref(object):
           single argument, which will be passed a pointer to this
           object.
         """
+
         def remove(weak, self=self):
             """Set self.isDead to True when method or instance is destroyed."""
             methods = self.deletion_methods[:]
@@ -176,8 +166,11 @@ class BoundMethodWeakref(object):
                         traceback.print_exc()
                     except AttributeError:
                         e = sys.exc_info()[1]
-                        print ('Exception during saferef %s '
-                               'cleanup function %s: %s' % (self, function, e))
+                        print(
+                            f"Exception during saferef {self} "
+                            f"cleanup function {function}: {e}"
+                        )
+
         self.deletion_methods = [on_delete]
         self.key = self.calculate_key(target)
         im_self = get_self(target)
@@ -194,6 +187,7 @@ class BoundMethodWeakref(object):
         object and the target function respectively.
         """
         return (id(get_self(target)), id(get_func(target)))
+
     calculate_key = classmethod(calculate_key)
 
     def __str__(self):
@@ -202,7 +196,7 @@ class BoundMethodWeakref(object):
             self.__class__.__name__,
             self.self_name,
             self.func_name,
-            )
+        )
 
     __repr__ = __str__
 
