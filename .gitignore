@@ -8,7 +8,7 @@ __pycache__/
 *.pyc
 /.pytest_cache/
 /.tox/
-/*.egg-info/
+**.egg-info/
 /dist/
 /docs/_build/
 .python-version
