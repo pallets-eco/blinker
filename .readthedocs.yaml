@@ -5,9 +5,10 @@ build:
     python: "3.10"
 python:
   install:
-    - requirements: docs/requirements.txt
+    - requirements: requirements/docs.txt
     - method: pip
       path: .
+
 sphinx:
   builder: dirhtml
   fail_on_warning: true
