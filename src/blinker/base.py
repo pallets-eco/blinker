@@ -12,11 +12,11 @@ from contextlib import contextmanager
 from warnings import warn
 from weakref import WeakValueDictionary
 
-from src.blinker._utilities import hashable_identity
-from src.blinker._utilities import lazy_property
-from src.blinker._utilities import reference
-from src.blinker._utilities import symbol
-from src.blinker._utilities import WeakTypes
+from blinker._utilities import hashable_identity
+from blinker._utilities import lazy_property
+from blinker._utilities import reference
+from blinker._utilities import symbol
+from blinker._utilities import WeakTypes
 
 
 ANY = symbol("ANY")
