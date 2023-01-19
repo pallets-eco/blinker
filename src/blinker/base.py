@@ -138,17 +138,17 @@ class Signal:
                 self.receiver_connected.send(
                     self, receiver=receiver, sender=sender, weak=weak
                 )
-            except:
+            except TypeError as e:
                 self.disconnect(receiver, sender)
-                raise
+                raise e
         if receiver_connected.receivers and self is not receiver_connected:
             try:
                 receiver_connected.send(
                     self, receiver_arg=receiver, sender_arg=sender, weak_arg=weak
                 )
-            except:
+            except TypeError as e:
                 self.disconnect(receiver, sender)
-                raise
+                raise e
         return receiver
 
     def connect_via(self, sender, weak=False):
@@ -203,9 +203,9 @@ class Signal:
         self.connect(receiver, sender=sender, weak=False)
         try:
             yield None
-        except:
+        except Exception as e:
             self.disconnect(receiver)
-            raise
+            raise e
         else:
             self.disconnect(receiver)
 
@@ -223,7 +223,7 @@ class Signal:
 
         """
         warn(
-            "temporarily_connected_to is deprecated; " "use connected_to instead.",
+            "temporarily_connected_to is deprecated; use connected_to instead.",
             DeprecationWarning,
         )
         return self.connected_to(receiver, sender)
@@ -244,8 +244,7 @@ class Signal:
             # for lowest possible cost.
             if __debug__ and sender and len(sender) > 1:
                 raise TypeError(
-                    "send() accepts only one positional "
-                    "argument, %s given" % len(sender)
+                    f"send() accepts only one positional argument, {len(sender)} given"
                 )
             return []
 
@@ -256,7 +255,7 @@ class Signal:
             sender = None
         elif len(sender) > 1:
             raise TypeError(
-                "send() accepts only one positional argument, " "%s given" % len(sender)
+                f"send() accepts only one positional argument, {len(sender)} given"
             )
         else:
             sender = sender[0]

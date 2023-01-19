@@ -191,17 +191,20 @@ def test_signal_signals_weak_sender():
 
 
 def test_empty_bucket_growth():
+    def senders():
+        return (
+            len(sig._by_sender),
+            sum(len(i) for i in sig._by_sender.values()),
+        )
+
+    def receivers():
+        return (
+            len(sig._by_receiver),
+            sum(len(i) for i in sig._by_receiver.values()),
+        )
+
     sentinel = Sentinel()
     sig = blinker.Signal()
-    senders = lambda: (
-        len(sig._by_sender),
-        sum(len(i) for i in sig._by_sender.values()),
-    )
-    receivers = lambda: (
-        len(sig._by_receiver),
-        sum(len(i) for i in sig._by_receiver.values()),
-    )
-
     receiver1 = sentinel.make_receiver("receiver1")
     receiver2 = sentinel.make_receiver("receiver2")
 
@@ -245,7 +248,7 @@ def test_meta_connect_failure():
     pytest.raises(TypeError, sig.connect, receiver)
     assert not sig.receivers
     assert not sig._by_receiver
-    assert sig._by_sender == {src.blinker.base.ANY_ID: set()}
+    assert sig._by_sender == {blinker.base.ANY_ID: set()}
 
     blinker.receiver_connected._clear_state()
 
@@ -461,7 +464,8 @@ def test_no_double_send():
 
 
 def test_has_receivers():
-    received = lambda sender: None
+    def received(_):
+        return None
 
     sig = blinker.Signal()
     assert not sig.has_receivers_for(None)

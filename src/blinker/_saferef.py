@@ -180,6 +180,7 @@ class BoundMethodWeakref:
         self.self_name = str(im_self)
         self.func_name = str(im_func.__name__)
 
+    @classmethod
     def calculate_key(cls, target):
         """Calculate the reference key for this reference.
 
@@ -187,8 +188,6 @@ class BoundMethodWeakref:
         object and the target function respectively.
         """
         return (id(get_self(target)), id(get_func(target)))
-
-    calculate_key = classmethod(calculate_key)
 
     def __str__(self):
         """Give a friendly representation of the object."""
@@ -204,11 +203,11 @@ class BoundMethodWeakref:
         """Whether we are still a valid reference."""
         return self() is not None
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         """Compare with another reference."""
         if not isinstance(other, self.__class__):
-            return cmp(self.__class__, type(other))
-        return cmp(self.key, other.key)
+            return operator.eq(self.__class__, type(other))
+        return operator.eq(self.key, other.key)
 
     def __call__(self):
         """Return a strong reference to the bound method.
