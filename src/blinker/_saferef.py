@@ -199,6 +199,9 @@ class BoundMethodWeakref:
 
     __repr__ = __str__
 
+    def __hash__(self):
+        return hash((self.self_name, self.key))
+
     def __nonzero__(self):
         """Whether we are still a valid reference."""
         return self() is not None
