@@ -157,6 +157,19 @@ value``) pairs:
   [(<function receive_data at 0x...>, 'received!')]
 
 
+Muting signals
+--------------
+
+To mute a signal, as may be required when testing, the
+:meth:`~Signal.muted` can be used as a context decorator:
+
+.. code-block:: python
+
+  sig = signal('send-data')
+  with sig.muted():
+       ...
+
+
 Anonymous Signals
 -----------------
 
