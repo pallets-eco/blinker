@@ -1,11 +1,13 @@
 import asyncio
 import inspect
 import sys
+import typing as t
 from functools import partial
-from typing import Any
 from weakref import ref
 
 from blinker._saferef import BoundMethodWeakref
+
+IdentityType = t.Union[t.Tuple[int, int], str, int]
 
 
 class _symbol:
@@ -38,7 +40,7 @@ class symbol:
 
     """
 
-    symbols = {}
+    symbols = {}  # type: ignore
 
     def __new__(cls, name):
         try:
@@ -47,11 +49,11 @@ class symbol:
             return cls.symbols.setdefault(name, _symbol(name))
 
 
-def hashable_identity(obj):
+def hashable_identity(obj: object) -> IdentityType:
     if hasattr(obj, "__func__"):
-        return (id(obj.__func__), id(obj.__self__))
+        return (id(obj.__func__), id(obj.__self__))  # type: ignore
     elif hasattr(obj, "im_func"):
-        return (id(obj.im_func), id(obj.im_self))
+        return (id(obj.im_func), id(obj.im_self))  # type: ignore
     elif isinstance(obj, (int, str)):
         return obj
     else:
@@ -64,8 +66,13 @@ WeakTypes = (ref, BoundMethodWeakref)
 class annotatable_weakref(ref):
     """A weakref.ref that supports custom instance attributes."""
 
+    receiver_id: t.Optional[IdentityType]
+    sender_id: t.Optional[IdentityType]
 
-def reference(object, callback=None, **annotations):
+
+def reference(  # type: ignore
+    object, callback=None, **annotations
+) -> annotatable_weakref:
     """Return an annotated weak ref."""
     if callable(object):
         weak = callable_reference(object, callback)
@@ -73,7 +80,7 @@ def reference(object, callback=None, **annotations):
         weak = annotatable_weakref(object, callback)
     for key, value in annotations.items():
         setattr(weak, key, value)
-    return weak
+    return weak  # type: ignore
 
 
 def callable_reference(object, callback=None):
@@ -100,7 +107,7 @@ class lazy_property:
         return value
 
 
-def is_coroutine_function(func: Any) -> bool:
+def is_coroutine_function(func: t.Any) -> bool:
     # Python < 3.8 does not correctly determine partially wrapped
     # coroutine functions are coroutine functions, hence the need for
     # this to exist. Code taken from CPython.
@@ -111,7 +118,7 @@ def is_coroutine_function(func: Any) -> bool:
         # such that it isn't determined as a coroutine function
         # without an explicit check.
         try:
-            from unittest.mock import AsyncMock
+            from unittest.mock import AsyncMock  # type: ignore
 
             if isinstance(func, AsyncMock):
                 return True
@@ -128,5 +135,5 @@ def is_coroutine_function(func: Any) -> bool:
         result = bool(func.__code__.co_flags & inspect.CO_COROUTINE)
         return (
             result
-            or getattr(func, "_is_coroutine", None) is asyncio.coroutines._is_coroutine
+            or getattr(func, "_is_coroutine", None) is asyncio.coroutines._is_coroutine  # type: ignore  # noqa: B950
         )
