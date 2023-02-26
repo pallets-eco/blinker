@@ -342,7 +342,6 @@ async def test_async_receiver():
         sentinel.append(sender)
 
     def wrapper(func):
-
         async def inner(*args, **kwargs):
             func(*args, **kwargs)
 
