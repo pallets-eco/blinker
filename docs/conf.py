@@ -8,10 +8,12 @@ release, version = get_version("blinker", placeholder=None)
 extensions = [
     "sphinx.ext.autodoc",
     "pallets_sphinx_themes",
+    "sphinx_issues",
 ]
 
 autoclass_content = "both"
 autodoc_member_order = "groupwise"
+issues_github_path = "pallets-eco/blinker"
 
 html_theme = "flask"
 html_theme_options = {"index_sidebar_logo": False}

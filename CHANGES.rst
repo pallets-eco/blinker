@@ -1,3 +1,17 @@
+Version 1.6
+-----------
+
+Released 2023-04-02
+
+-   Add a muted context manager to temporarily turn off a
+    signal. :pr:`84`
+-   Allow int senders (alongside existing string senders). :pr:`83`
+-   Add a send_async method to the Signal to allow signals to send to
+    coroutine receivers. :pr:`76`
+-   Update and modernise the project structure to match that used by the
+    pallets projects. :pr:`77`
+-   Add an intial set of type hints for the project.
+
 Version 1.5
 -----------
 
