@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+from itertools import chain
 import sys
 import typing as t
 from functools import partial
@@ -140,3 +141,16 @@ def is_coroutine_function(func: t.Any) -> bool:
 
         acic = asyncio.coroutines._is_coroutine  # type: ignore[attr-defined]
         return getattr(func, "_is_coroutine", None) is acic
+
+
+def merge_lists_unique(*lists):
+    """
+    Merge multiple lists, maintaining order and ensuring items are unique
+    """
+    output = []
+
+    for item in chain.from_iterable(lists):
+        if item not in output:
+            output.append(item)
+
+    return output

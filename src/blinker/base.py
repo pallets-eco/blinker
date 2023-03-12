@@ -20,6 +20,7 @@ from blinker._utilities import hashable_identity
 from blinker._utilities import IdentityType
 from blinker._utilities import is_coroutine_function
 from blinker._utilities import lazy_property
+from blinker._utilities import merge_lists_unique
 from blinker._utilities import reference
 from blinker._utilities import symbol
 from blinker._utilities import WeakTypes
@@ -99,8 +100,8 @@ class Signal:
         #: any receivers are connected to the signal.
         self.receivers: dict[IdentityType, t.Callable | annotatable_weakref] = {}
         self.is_muted = False
-        self._by_receiver: dict[IdentityType, set[IdentityType]] = defaultdict(set)
-        self._by_sender: dict[IdentityType, set[IdentityType]] = defaultdict(set)
+        self._by_receiver: dict[IdentityType, list[IdentityType]] = defaultdict(list)
+        self._by_sender: dict[IdentityType, list[IdentityType]] = defaultdict(list)
         self._weak_senders: dict[IdentityType, annotatable_weakref] = {}
 
     def connect(
@@ -139,8 +140,12 @@ class Signal:
             sender_id = hashable_identity(sender)
 
         self.receivers.setdefault(receiver_id, receiver_ref)
-        self._by_sender[sender_id].add(receiver_id)
-        self._by_receiver[receiver_id].add(sender_id)
+
+        if receiver_id not in self._by_sender[sender_id]:
+            self._by_sender[sender_id].append(receiver_id)
+        if sender_id not in self._by_receiver[receiver_id]:
+            self._by_receiver[receiver_id].append(sender_id)
+
         del receiver_ref
 
         if sender is not ANY and sender_id not in self._weak_senders:
@@ -379,10 +384,7 @@ class Signal:
         # TODO: test receivers_for(ANY)
         if self.receivers:
             sender_id = hashable_identity(sender)
-            if sender_id in self._by_sender:
-                ids = self._by_sender[ANY_ID] | self._by_sender[sender_id]
-            else:
-                ids = self._by_sender[ANY_ID].copy()
+            ids = merge_lists_unique(self._by_sender[ANY_ID], self._by_sender.get(sender_id, []))
             for receiver_id in ids:
                 receiver = self.receivers.get(receiver_id)
                 if receiver is None:
@@ -422,11 +424,21 @@ class Signal:
         if sender_id == ANY_ID:
             if self._by_receiver.pop(receiver_id, False):
                 for bucket in self._by_sender.values():
-                    bucket.discard(receiver_id)
+                    try:
+                        bucket.remove(receiver_id)
+                    except ValueError:
+                        pass
             self.receivers.pop(receiver_id, None)
         else:
-            self._by_sender[sender_id].discard(receiver_id)
-            self._by_receiver[receiver_id].discard(sender_id)
+            try:
+                self._by_sender[sender_id].remove(receiver_id)
+            except ValueError:
+                pass
+
+            try:
+                self._by_receiver[receiver_id].remove(sender_id)
+            except ValueError:
+                pass
 
     def _cleanup_receiver(self, receiver_ref: annotatable_weakref) -> None:
         """Disconnect a receiver from all senders."""
@@ -438,7 +450,10 @@ class Signal:
         assert sender_id != ANY_ID
         self._weak_senders.pop(sender_id, None)
         for receiver_id in self._by_sender.pop(sender_id, ()):
-            self._by_receiver[receiver_id].discard(sender_id)
+            try:
+                self._by_receiver[receiver_id].remove(sender_id)
+            except ValueError:
+                pass
 
     def _cleanup_bookkeeping(self) -> None:
         """Prune unused sender/receiver bookkeeping. Not threadsafe.

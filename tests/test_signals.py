@@ -248,7 +248,7 @@ def test_meta_connect_failure():
     pytest.raises(TypeError, sig.connect, receiver)
     assert not sig.receivers
     assert not sig._by_receiver
-    assert sig._by_sender == {blinker.base.ANY_ID: set()}
+    assert sig._by_sender == {blinker.base.ANY_ID: []}
 
     blinker.receiver_connected._clear_state()
 
@@ -308,8 +308,8 @@ def test_weak_receiver():
     sig.send()
     assert not sentinel
     assert not sig.receivers
-    values_are_empty_sets_(sig._by_receiver)
-    values_are_empty_sets_(sig._by_sender)
+    values_are_empty_lists_(sig._by_receiver)
+    values_are_empty_lists_(sig._by_sender)
 
 
 def test_strong_receiver():
@@ -438,8 +438,8 @@ def test_filtered_receiver_weakref():
     # general index isn't cleaned up
     assert sig.receivers
     # but receiver/sender pairs are
-    values_are_empty_sets_(sig._by_receiver)
-    values_are_empty_sets_(sig._by_sender)
+    values_are_empty_lists_(sig._by_receiver)
+    values_are_empty_lists_(sig._by_sender)
 
 
 def test_decorated_receiver():
@@ -487,6 +487,27 @@ def test_no_double_send():
     assert sentinel == [None, 123]
     sig.send()
     assert sentinel == [None, 123, None]
+
+
+def test_send_order():
+    sentinel = []
+
+    def received_first(sender):
+        sentinel.append(1)
+
+    def received_second(sender):
+        sentinel.append(2)
+
+    sig = blinker.Signal()
+
+    sig.connect(received_first)
+    sig.connect(received_second)
+
+    assert not sentinel
+    sig.send()
+    assert sentinel == [1, 2]
+    sig.send()
+    assert sentinel == [1, 2, 1, 2]
 
 
 def test_has_receivers():
@@ -555,9 +576,9 @@ def test_mute_signal():
     assert 456 not in sentinel
 
 
-def values_are_empty_sets_(dictionary):
+def values_are_empty_lists_(dictionary):
     for val in dictionary.values():
-        assert val == set()
+        assert val == []
 
 
 def test_int_sender():

@@ -1,6 +1,7 @@
 import pickle
 
 from blinker._utilities import symbol
+from blinker._utilities import merge_lists_unique
 
 
 def test_symbols():
@@ -22,3 +23,10 @@ def test_pickled_symbols():
     for _ in 0, 1, 2:
         roundtrip = pickle.loads(pickle.dumps(foo))
         assert roundtrip is foo
+
+
+def test_merge_lists_unique():
+    assert merge_lists_unique([123]) == [123]
+    assert merge_lists_unique([123], [456]) == [123, 456]
+    assert merge_lists_unique([123, 456], [456]) == [123, 456]
+    assert merge_lists_unique([123, 456], [456, 123]) == [123, 456]
