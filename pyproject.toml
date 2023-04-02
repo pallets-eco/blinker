@@ -60,7 +60,6 @@ warn_return_any = true
 
 [tool.setuptools]
 license-files = ["LICENSE.rst"]
-include-package-data = false
 
 [tool.setuptools.dynamic]
 version = {attr = "blinker.__version__"}
