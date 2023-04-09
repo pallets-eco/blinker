@@ -1,3 +1,13 @@
+Version 1.6.1
+-------------
+
+Released 2023-04-09
+
+-   Ensure that py.typed is present in the distributions (to enable other
+    projects to use blinker's typing).
+-   Require typing-extensions > 4.2 to ensure it includes
+    ParamSpec. :issue:`90`
+
 Version 1.6
 -----------
 
