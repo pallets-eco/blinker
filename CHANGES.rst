@@ -1,7 +1,7 @@
 Version 1.6.2
 -------------
 
-Unreleased
+Released 2023-04-12
 
 -   Type annotations are not evaluated at runtime. typing-extensions is not a runtime
     dependency. :pr:`94`
