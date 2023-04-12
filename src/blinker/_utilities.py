@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import inspect
 import sys
@@ -40,7 +42,7 @@ class symbol:
 
     """
 
-    symbols = {}  # type: ignore
+    symbols = {}  # type: ignore[var-annotated]
 
     def __new__(cls, name):
         try:
@@ -51,9 +53,9 @@ class symbol:
 
 def hashable_identity(obj: object) -> IdentityType:
     if hasattr(obj, "__func__"):
-        return (id(obj.__func__), id(obj.__self__))  # type: ignore
+        return (id(obj.__func__), id(obj.__self__))  # type: ignore[attr-defined]
     elif hasattr(obj, "im_func"):
-        return (id(obj.im_func), id(obj.im_self))  # type: ignore
+        return (id(obj.im_func), id(obj.im_self))  # type: ignore[attr-defined]
     elif isinstance(obj, (int, str)):
         return obj
     else:
@@ -70,7 +72,7 @@ class annotatable_weakref(ref):
     sender_id: t.Optional[IdentityType]
 
 
-def reference(  # type: ignore
+def reference(  # type: ignore[no-untyped-def]
     object, callback=None, **annotations
 ) -> annotatable_weakref:
     """Return an annotated weak ref."""
@@ -80,7 +82,7 @@ def reference(  # type: ignore
         weak = annotatable_weakref(object, callback)
     for key, value in annotations.items():
         setattr(weak, key, value)
-    return weak  # type: ignore
+    return weak  # type: ignore[no-any-return]
 
 
 def callable_reference(object, callback=None):
@@ -118,7 +120,7 @@ def is_coroutine_function(func: t.Any) -> bool:
         # such that it isn't determined as a coroutine function
         # without an explicit check.
         try:
-            from unittest.mock import AsyncMock  # type: ignore
+            from unittest.mock import AsyncMock  # type: ignore[attr-defined]
 
             if isinstance(func, AsyncMock):
                 return True
@@ -132,8 +134,9 @@ def is_coroutine_function(func: t.Any) -> bool:
             func = func.func
         if not inspect.isfunction(func):
             return False
-        result = bool(func.__code__.co_flags & inspect.CO_COROUTINE)
-        return (
-            result
-            or getattr(func, "_is_coroutine", None) is asyncio.coroutines._is_coroutine  # type: ignore  # noqa: B950
-        )
+
+        if func.__code__.co_flags & inspect.CO_COROUTINE:
+            return True
+
+        acic = asyncio.coroutines._is_coroutine  # type: ignore[attr-defined]
+        return getattr(func, "_is_coroutine", None) is acic

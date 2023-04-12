@@ -24,7 +24,6 @@ classifiers = [
 ]
 requires-python = ">= 3.7"
 dynamic = ["version"]
-dependencies = ["typing-extensions>=4.2"]
 
 [project.urls]
 Homepage = "https://blinker.readthedocs.io"

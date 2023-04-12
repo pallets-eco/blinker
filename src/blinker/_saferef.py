@@ -108,7 +108,7 @@ class BoundMethodWeakref:
       produce the same BoundMethodWeakref instance.
     """
 
-    _all_instances = weakref.WeakValueDictionary()  # type: ignore
+    _all_instances = weakref.WeakValueDictionary()  # type: ignore[var-annotated]
 
     def __new__(cls, target, on_delete=None, *arguments, **named):
         """Create new instance or return current instance.
