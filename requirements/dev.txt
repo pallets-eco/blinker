@@ -5,7 +5,7 @@
 #
 #    pip-compile-multi
 #
-cachetools==5.2.1
+cachetools==5.3.0
     # via tox
 cfgv==3.3.1
     # via pre-commit
@@ -15,13 +15,13 @@ colorama==0.4.6
     # via tox
 distlib==0.3.6
     # via virtualenv
-filelock==3.9.0
+filelock==3.12.0
     # via
     #   tox
     #   virtualenv
-identify==2.5.13
+identify==2.5.23
     # via pre-commit
-importlib-metadata==6.0.0
+importlib-metadata==6.6.0
     # via
     #   pluggy
     #   pre-commit
@@ -29,11 +29,11 @@ importlib-metadata==6.0.0
     #   virtualenv
 nodeenv==1.7.0
     # via pre-commit
-packaging==23.0
+packaging==23.1
     # via
     #   pyproject-api
     #   tox
-platformdirs==2.6.2
+platformdirs==3.5.0
     # via
     #   tox
     #   virtualenv
@@ -41,7 +41,7 @@ pluggy==1.0.0
     # via tox
 pre-commit==2.21.0
     # via -r requirements/dev.in
-pyproject-api==1.5.0
+pyproject-api==1.5.1
     # via tox
 pyyaml==6.0
     # via pre-commit
@@ -49,18 +49,18 @@ tomli==2.0.1
     # via
     #   pyproject-api
     #   tox
-tox==4.3.5
+tox==4.5.1
     # via -r requirements/dev.in
-typing-extensions==4.4.0
+typing-extensions==4.5.0
     # via
     #   importlib-metadata
     #   platformdirs
     #   tox
-virtualenv==20.17.1
+virtualenv==20.23.0
     # via
     #   pre-commit
     #   tox
-zipp==3.11.0
+zipp==3.15.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
