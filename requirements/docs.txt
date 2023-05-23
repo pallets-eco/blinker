@@ -19,10 +19,6 @@ idna==3.4
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.6.0
-    # via
-    #   pallets-sphinx-themes
-    #   sphinx
 jinja2==3.1.2
     # via sphinx
 markupsafe==2.1.2
@@ -32,22 +28,20 @@ packaging==23.1
     #   pallets-sphinx-themes
     #   sphinx
 pallets-sphinx-themes==2.0.3
-    # via -r requirements/docs.in
+    # via -r docs.in
 pygments==2.15.1
     # via sphinx
-pytz==2023.3
-    # via babel
-requests==2.29.0
+requests==2.31.0
     # via sphinx
 snowballstemmer==2.2.0
     # via sphinx
 sphinx==5.3.0
     # via
-    #   -r requirements/docs.in
+    #   -r docs.in
     #   pallets-sphinx-themes
     #   sphinx-issues
 sphinx-issues==3.0.1
-    # via -r requirements/docs.in
+    # via -r docs.in
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
@@ -60,9 +54,5 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-typing-extensions==4.5.0
-    # via importlib-metadata
 urllib3==1.26.15
     # via requests
-zipp==3.15.0
-    # via importlib-metadata
