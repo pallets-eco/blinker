@@ -5,29 +5,15 @@
 #
 #    pip-compile-multi
 #
-exceptiongroup==1.1.1
-    # via pytest
-importlib-metadata==6.6.0
-    # via
-    #   pluggy
-    #   pytest
 iniconfig==2.0.0
     # via pytest
 packaging==23.1
     # via pytest
-pluggy==1.0.0
+pluggy==1.2.0
     # via pytest
-pytest==7.3.1
+pytest==7.4.0
     # via
     #   -r requirements/tests.in
     #   pytest-asyncio
 pytest-asyncio==0.21.0
     # via -r requirements/tests.in
-tomli==2.0.1
-    # via pytest
-typing-extensions==4.5.0
-    # via
-    #   importlib-metadata
-    #   pytest-asyncio
-zipp==3.15.0
-    # via importlib-metadata

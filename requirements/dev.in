@@ -1,2 +1,3 @@
 tox
 pre-commit
+pip-compile-multi

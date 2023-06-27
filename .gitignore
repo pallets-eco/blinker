@@ -1,16 +1,14 @@
 /.idea/
 /.vscode/
-/venv*/
-/.venv*/
-/env*/
-/.env*/
+/.venv/
 __pycache__/
-*.pyc
-/.pytest_cache/
-/.tox/
-**.egg-info/
 /dist/
+*.egg-info/
+/.pytest_cache/
+/.coverage
+/.coverage.*
+/htmlcov/
+/.mypy_cache/
+/.tox/
 /docs/_build/
-.python-version
-# prefix for devs private stuff kept with the project
-private_*
+/.env
