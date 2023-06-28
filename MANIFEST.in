@@ -1,7 +1,0 @@
-include CHANGES.rst
-include tox.ini
-include src/blinker/py.typed
-graft docs
-prune docs/_build
-graft tests
-global-exclude *.pyc

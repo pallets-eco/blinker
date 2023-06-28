@@ -1,10 +1,6 @@
-[build-system]
-requires = ["setuptools>=61.2"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "blinker"
-license = {text = "MIT License"}
+license = {file = "LICENSE.rst"}
 authors = [{name = "Jason Kirtland", email = "jek@discorporate.us"}]
 maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com"}]
 description = "Fast, simple object-to-object and broadcast signaling"
@@ -22,7 +18,7 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries",
 ]
-requires-python = ">= 3.7"
+requires-python = ">=3.7"
 dynamic = ["version"]
 
 [project.urls]
@@ -32,9 +28,26 @@ Documentation = "https://blinker.readthedocs.io"
 "Issue Tracker" = "https://github.com/pallets-eco/blinker/issues/"
 Chat = "https://discord.gg/pallets"
 
-[project.readme]
-file = "README.rst"
-content-type = "text/x-rst"
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.sdist]
+include = [
+    "docs/",
+    "requirements/",
+    "tests/",
+    "CHANGES.rst",
+    "tox.ini",
+]
+exclude = [
+    "docs/_build/",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["error"]
 
 [tool.mypy]
 python_version = "3.7"
@@ -56,14 +69,3 @@ warn_unused_configs = true
 warn_unused_ignores = true
 warn_return_any = true
 #warn_unreachable = True
-
-[tool.setuptools]
-license-files = ["LICENSE.rst"]
-
-[tool.setuptools.dynamic]
-version = {attr = "blinker.__version__"}
-
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-testpaths = ["tests"]
-filterwarnings = ["error"]
