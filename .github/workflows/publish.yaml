@@ -62,10 +62,10 @@ jobs:
       id-token: write
     steps:
       - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
-      - uses: pypa/gh-action-pypi-publish@a56da0b891b3dc519c7ee3284aff1fad93cc8598
+      - uses: pypa/gh-action-pypi-publish@f5622bde02b04381239da3573277701ceca8f6a0
         with:
           repository-url: https://test.pypi.org/legacy/
           packages-dir: artifact/
-      - uses: pypa/gh-action-pypi-publish@a56da0b891b3dc519c7ee3284aff1fad93cc8598
+      - uses: pypa/gh-action-pypi-publish@f5622bde02b04381239da3573277701ceca8f6a0
         with:
           packages-dir: artifact/
