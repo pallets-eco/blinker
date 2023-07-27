@@ -297,7 +297,7 @@ class Signal:
                 if _async_wrapper is None:
                     raise RuntimeError("Cannot send to a coroutine function")
                 receiver = _async_wrapper(receiver)
-            result = receiver(sender, **kwargs)  # type: ignore[call-arg]
+            result = receiver(sender, **kwargs)
             results.append((receiver, result))
         return results
 
@@ -328,8 +328,8 @@ class Signal:
             if not is_coroutine_function(receiver):
                 if _sync_wrapper is None:
                     raise RuntimeError("Cannot send to a non-coroutine function")
-                receiver = _sync_wrapper(receiver)  # type: ignore[arg-type]
-            result = await receiver(sender, **kwargs)  # type: ignore[call-arg, misc]
+                receiver = _sync_wrapper(receiver)
+            result = await receiver(sender, **kwargs)
             results.append((receiver, result))
         return results
 
@@ -374,7 +374,7 @@ class Signal:
 
     def receivers_for(
         self, sender: t.Any
-    ) -> t.Generator[t.Callable | annotatable_weakref, None, None]:
+    ) -> t.Generator[t.Callable[[t.Any], t.Any], None, None]:
         """Iterate all live receivers listening for *sender*."""
         # TODO: test receivers_for(ANY)
         if self.receivers:
