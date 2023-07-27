@@ -1,3 +1,10 @@
+Version 1.6.3
+-------------
+
+Unreleased
+
+-   Fix `SyncWrapperType` and `AsyncWrapperType` :pr:`108`
+
 Version 1.6.2
 -------------
 
