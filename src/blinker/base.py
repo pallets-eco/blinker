@@ -32,8 +32,8 @@ if t.TYPE_CHECKING:
     T = t.TypeVar("T")
     P = te.ParamSpec("P")
 
-    AsyncWrapperType = t.Callable[[t.Callable[P, T]], t.Callable[P, t.Awaitable[T]]]
-    SyncWrapperType = t.Callable[[t.Callable[P, t.Awaitable[T]]], t.Callable[P, T]]
+    AsyncWrapperType = t.Callable[[t.Callable[P, t.Awaitable[T]]], t.Callable[P, T]]
+    SyncWrapperType = t.Callable[[t.Callable[P, T]], t.Callable[P, t.Awaitable[T]]]
 
 ANY = symbol("ANY")
 ANY.__doc__ = 'Token for "any sender".'
