@@ -4,6 +4,8 @@ Version 1.6.3
 Unreleased
 
 -   Fix `SyncWrapperType` and `AsyncWrapperType` :pr:`108`
+-   Fixed issue where ``signal.connected_to`` would not disconnect the
+    receiver if an instance of ``BaseException`` was raised. :pr:`114`
 
 Version 1.6.2
 -------------
