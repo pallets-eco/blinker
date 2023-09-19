@@ -229,10 +229,7 @@ class Signal:
         self.connect(receiver, sender=sender, weak=False)
         try:
             yield None
-        except Exception as e:
-            self.disconnect(receiver)
-            raise e
-        else:
+        finally:
             self.disconnect(receiver)
 
     @contextmanager
