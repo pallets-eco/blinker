@@ -47,6 +47,8 @@ class Signal:
     #: without an additional import.
     ANY = ANY
 
+    set_class: type[set] = set
+
     @lazy_property
     def receiver_connected(self) -> Signal:
         """Emitted after each :meth:`connect`.
@@ -99,8 +101,12 @@ class Signal:
         #: any receivers are connected to the signal.
         self.receivers: dict[IdentityType, t.Callable | annotatable_weakref] = {}
         self.is_muted = False
-        self._by_receiver: dict[IdentityType, set[IdentityType]] = defaultdict(set)
-        self._by_sender: dict[IdentityType, set[IdentityType]] = defaultdict(set)
+        self._by_receiver: dict[IdentityType, set[IdentityType]] = defaultdict(
+            self.set_class
+        )
+        self._by_sender: dict[IdentityType, set[IdentityType]] = defaultdict(
+            self.set_class
+        )
         self._weak_senders: dict[IdentityType, annotatable_weakref] = {}
 
     def connect(
