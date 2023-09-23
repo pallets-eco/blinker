@@ -1,7 +1,7 @@
 Version 1.6.3
 -------------
 
-Unreleased
+Released 2023-09-23
 
 -   Fix `SyncWrapperType` and `AsyncWrapperType` :pr:`108`
 -   Fixed issue where ``signal.connected_to`` would not disconnect the
