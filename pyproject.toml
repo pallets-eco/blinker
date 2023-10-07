@@ -4,6 +4,7 @@ license = {file = "LICENSE.rst"}
 authors = [{name = "Jason Kirtland", email = "jek@discorporate.us"}]
 maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com"}]
 description = "Fast, simple object-to-object and broadcast signaling"
+readme = "README.rst"
 keywords = [
     "signal",
     "emit",
