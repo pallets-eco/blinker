@@ -39,6 +39,10 @@ ANY = symbol("ANY")
 ANY.__doc__ = 'Token for "any sender".'
 ANY_ID = 0
 
+# NOTE: We need a reference to cast for use in weakref callbacks otherwise
+#       t.cast may have already been set to None during finalization.
+cast = t.cast
+
 
 class Signal:
     """A notification emitter."""
@@ -427,11 +431,11 @@ class Signal:
 
     def _cleanup_receiver(self, receiver_ref: annotatable_weakref) -> None:
         """Disconnect a receiver from all senders."""
-        self._disconnect(t.cast(IdentityType, receiver_ref.receiver_id), ANY_ID)
+        self._disconnect(cast(IdentityType, receiver_ref.receiver_id), ANY_ID)
 
     def _cleanup_sender(self, sender_ref: annotatable_weakref) -> None:
         """Disconnect all receivers from a sender."""
-        sender_id = t.cast(IdentityType, sender_ref.sender_id)
+        sender_id = cast(IdentityType, sender_ref.sender_id)
         assert sender_id != ANY_ID
         self._weak_senders.pop(sender_id, None)
         for receiver_id in self._by_sender.pop(sender_id, ()):
