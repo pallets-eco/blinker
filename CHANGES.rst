@@ -1,3 +1,11 @@
+Version 1.6.4
+-------------
+
+Unreleased
+
+-   Fixed messages printed to standard error about unraisable exceptions during
+    signal cleanup, typically during interpreter shutdown. :pr:`123`
+
 Version 1.6.3
 -------------
 
