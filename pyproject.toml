@@ -19,7 +19,7 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dynamic = ["version"]
 
 [project.urls]
@@ -51,7 +51,7 @@ testpaths = ["tests"]
 filterwarnings = ["error"]
 
 [tool.mypy]
-python_version = "3.7"
+python_version = "3.8"
 files = ["src/blinker"]
 show_error_codes = true
 pretty = true
