@@ -44,7 +44,7 @@ class BaseFailure(BaseException):
     pass
 
 
-@pytest.mark.parametrize('exc_type', [Failure, BaseFailure])
+@pytest.mark.parametrize("exc_type", [Failure, BaseFailure])
 def test_temp_connection_failure(exc_type):
     sig = Signal()
 
