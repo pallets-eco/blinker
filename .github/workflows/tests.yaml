@@ -24,13 +24,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {name: '3.12', python: '3.12-dev', tox: py312}
+          - {name: '3.12', python: '3.12', tox: py312}
           - {name: '3.11', python: '3.11', tox: py311}
           - {name: '3.10', python: '3.10', tox: py310}
           - {name: '3.9', python: '3.9', tox: py39}
           - {name: '3.8', python: '3.8', tox: py38}
-          - {name: '3.7', python: '3.7', tox: py37}
-          - {name: 'Typing', python: '3.11', tox: typing}
+          - {name: 'Typing', python: '3.12', tox: typing}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1

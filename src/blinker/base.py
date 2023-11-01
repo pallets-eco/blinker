@@ -12,13 +12,13 @@ from __future__ import annotations
 import typing as t
 from collections import defaultdict
 from contextlib import contextmanager
+from inspect import iscoroutinefunction
 from warnings import warn
 from weakref import WeakValueDictionary
 
 from blinker._utilities import annotatable_weakref
 from blinker._utilities import hashable_identity
 from blinker._utilities import IdentityType
-from blinker._utilities import is_coroutine_function
 from blinker._utilities import lazy_property
 from blinker._utilities import reference
 from blinker._utilities import symbol
@@ -300,7 +300,7 @@ class Signal:
         sender = self._extract_sender(sender)
         results = []
         for receiver in self.receivers_for(sender):
-            if is_coroutine_function(receiver):
+            if iscoroutinefunction(receiver):
                 if _async_wrapper is None:
                     raise RuntimeError("Cannot send to a coroutine function")
                 receiver = _async_wrapper(receiver)
@@ -332,7 +332,7 @@ class Signal:
         sender = self._extract_sender(sender)
         results = []
         for receiver in self.receivers_for(sender):
-            if not is_coroutine_function(receiver):
+            if not iscoroutinefunction(receiver):
                 if _sync_wrapper is None:
                     raise RuntimeError("Cannot send to a non-coroutine function")
                 receiver = _sync_wrapper(receiver)
