@@ -1,10 +1,13 @@
-Version 1.6.4
+Version 1.7.0
 -------------
 
-Unreleased
+Released 2023-11-01
 
 -   Fixed messages printed to standard error about unraisable exceptions during
     signal cleanup, typically during interpreter shutdown. :pr:`123`
+-   Allow the Signal set_class to be customised, to allow calling of receivers
+    in registration order. :pr:`116`.
+-   Drop Python 3.7 and support Python 3.12. :pr:`126`
 
 Version 1.6.3
 -------------
