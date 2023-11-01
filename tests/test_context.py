@@ -56,7 +56,7 @@ def test_temp_connection_failure(exc_type):
     class Failure(Exception):
         pass
 
-    with pytest.raises(exc_type):
+    with pytest.raises(exc_type):  # noqa: B908
         sig.send(1)
         with sig.connected_to(receiver):
             sig.send(2)
