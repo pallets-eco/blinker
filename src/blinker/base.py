@@ -512,7 +512,7 @@ class NamedSignal(Signal):
 
     def __repr__(self) -> str:
         base = Signal.__repr__(self)
-        return f"{base[:-1]}; {self.name!r}>"
+        return f"{base[:-1]}; {self.name!r}>"  # noqa: E702
 
 
 class Namespace(dict):
