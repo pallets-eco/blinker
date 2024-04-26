@@ -3,6 +3,9 @@ Version 1.8.0
 
 Unreleased
 
+-   Deprecate the ``__version__`` attribute. Use feature detection, or
+    ``importlib.metadata.version("blinker")``, instead. :issue:`128`
+
 
 Version 1.7.0
 -------------
