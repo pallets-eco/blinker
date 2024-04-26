@@ -31,23 +31,26 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+
+from __future__ import annotations
+
+import typing as t
 import unittest
 
 from blinker._saferef import safe_ref
 
 
 class _Sample1:
-    def x(self):
+    def x(self) -> None:
         pass
 
 
-def _sample2(obj):
+def _sample2(obj: t.Any) -> None:
     pass
 
 
 class _Sample3:
-    def __call__(self, obj):
+    def __call__(self, obj: t.Any) -> None:
         pass
 
 
@@ -56,53 +59,53 @@ class TestSaferef(unittest.TestCase):
     # off-by-one problem, perhaps due to scope issues.  It has been
     # removed from this test suite.
 
-    def setUp(self):
-        ts = []
-        ss = []
+    def setUp(self) -> None:
+        samples: list[t.Any] = []
+        refs: list[t.Any] = []
         for _ in range(100):
-            t = _Sample1()
-            ts.append(t)
-            s = safe_ref(t.x, self._closure)
-            ss.append(s)
-        ts.append(_sample2)
-        ss.append(safe_ref(_sample2, self._closure))
+            sample: t.Any = _Sample1()
+            samples.append(sample)
+            ref = safe_ref(sample.x, self._closure)
+            refs.append(ref)
+        samples.append(_sample2)
+        refs.append(safe_ref(_sample2, self._closure))
         for _ in range(30):
-            t = _Sample3()
-            ts.append(t)
-            s = safe_ref(t, self._closure)
-            ss.append(s)
-        self.ts = ts
-        self.ss = ss
+            sample = _Sample3()
+            samples.append(sample)
+            ref = safe_ref(sample, self._closure)
+            refs.append(ref)
+        self.ts = samples
+        self.ss = refs
         self.closure_count = 0
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         if hasattr(self, "ts"):
             del self.ts
         if hasattr(self, "ss"):
             del self.ss
 
-    def test_In(self):
+    def test_In(self) -> None:
         """Test the `in` operator for safe references (cmp)"""
-        for t in self.ts[:50]:
-            assert safe_ref(t.x) in self.ss
+        for sample in self.ts[:50]:
+            assert safe_ref(sample.x) in self.ss
 
-    def test_Valid(self):
+    def test_Valid(self) -> None:
         """Test that the references are valid (return instance methods)"""
         for s in self.ss:
             assert s()
 
-    def test_ShortCircuit(self):
+    def test_ShortCircuit(self) -> None:
         """Test that creation short-circuits to reuse existing references"""
         sd = {}
         for s in self.ss:
             sd[s] = 1
-        for t in self.ts:
-            if hasattr(t, "x"):
-                assert safe_ref(t.x) in sd
+        for sample in self.ts:
+            if hasattr(sample, "x"):
+                assert safe_ref(sample.x) in sd
             else:
-                assert safe_ref(t) in sd
+                assert safe_ref(sample) in sd
 
-    def test_Representation(self):
+    def test_Representation(self) -> None:
         """Test that the reference object's representation works
 
         XXX Doesn't currently check the results, just that no error
@@ -110,6 +113,6 @@ class TestSaferef(unittest.TestCase):
         """
         repr(self.ss[-1])
 
-    def _closure(self, ref):
+    def _closure(self, ref: t.Any) -> None:
         """Dumb utility mechanism to increment deletion counter"""
         self.closure_count += 1

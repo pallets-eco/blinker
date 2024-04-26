@@ -31,19 +31,27 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-"""Refactored 'safe reference from dispatcher.py"""
+
+from __future__ import annotations
+
 import operator
 import sys
 import traceback
+import typing as t
 import weakref
-
+from types import MethodType
 
 get_self = operator.attrgetter("__self__")
 get_func = operator.attrgetter("__func__")
 
+if t.TYPE_CHECKING:
+    import typing_extensions as te
 
-def safe_ref(target, on_delete=None):
+
+def safe_ref(
+    target: t.Callable[..., t.Any],
+    on_delete: t.Callable[[weakref.ref[t.Any]], None] | None = None,
+) -> weakref.ref[t.Any] | BoundMethodWeakref | None:
     """Return a *safe* weak reference to a callable target.
 
     - ``target``: The object to be weakly referenced, if it's a bound
@@ -58,20 +66,24 @@ def safe_ref(target, on_delete=None):
     try:
         im_self = get_self(target)
     except AttributeError:
-        if callable(on_delete):
+        if on_delete is not None:
             return weakref.ref(target, on_delete)
-        else:
-            return weakref.ref(target)
-    else:
-        if im_self is not None:
-            # Turn a bound method into a BoundMethodWeakref instance.
-            # Keep track of these instances for lookup by disconnect().
-            assert hasattr(target, "im_func") or hasattr(target, "__func__"), (
-                f"safe_ref target {target!r} has im_self, but no im_func, "
-                "don't know how to create reference"
-            )
-            reference = BoundMethodWeakref(target=target, on_delete=on_delete)
-            return reference
+
+        return weakref.ref(target)
+
+    if im_self is not None:
+        # Turn a bound method into a BoundMethodWeakref instance.
+        # Keep track of these instances for lookup by disconnect().
+        assert hasattr(target, "im_func") or hasattr(target, "__func__"), (
+            f"safe_ref target {target!r} has im_self, but no im_func, "
+            "don't know how to create reference"
+        )
+        return BoundMethodWeakref(
+            target=target,  # type: ignore[arg-type]
+            on_delete=on_delete,  # type: ignore[arg-type]
+        )
+
+    return None
 
 
 class BoundMethodWeakref:
@@ -108,9 +120,17 @@ class BoundMethodWeakref:
       produce the same BoundMethodWeakref instance.
     """
 
-    _all_instances = weakref.WeakValueDictionary()  # type: ignore[var-annotated]
+    _all_instances: weakref.WeakValueDictionary[tuple[int, int], BoundMethodWeakref] = (
+        weakref.WeakValueDictionary()
+    )
 
-    def __new__(cls, target, on_delete=None, *arguments, **named):
+    def __new__(
+        cls,
+        target: MethodType,
+        on_delete: t.Callable[[BoundMethodWeakref], None] | None = None,
+        *arguments: t.Any,
+        **named: t.Any,
+    ) -> BoundMethodWeakref:
         """Create new instance or return current instance.
 
         Basically this method of construction allows us to
@@ -129,10 +149,11 @@ class BoundMethodWeakref:
         else:
             base = super().__new__(cls)
             cls._all_instances[key] = base
-            base.__init__(target, on_delete, *arguments, **named)
             return base
 
-    def __init__(self, target, on_delete=None):
+    def __init__(
+        self, target: MethodType, on_delete: t.Callable[[te.Self], None] | None = None
+    ) -> None:
         """Return a weak-reference-like instance for a bound method.
 
         - ``target``: The instance-method target for the weak reference,
@@ -149,7 +170,7 @@ class BoundMethodWeakref:
           object.
         """
 
-        def remove(weak, self=self):
+        def remove(weak: weakref.ref[t.Any]) -> None:
             """Set self.isDead to True when method or instance is destroyed."""
             methods = self.deletion_methods[:]
             del self.deletion_methods[:]
@@ -181,38 +202,34 @@ class BoundMethodWeakref:
         self.func_name = str(im_func.__name__)
 
     @classmethod
-    def calculate_key(cls, target):
+    def calculate_key(cls, target: t.Callable[..., t.Any]) -> tuple[int, int]:
         """Calculate the reference key for this reference.
 
         Currently this is a two-tuple of the id()'s of the target
         object and the target function respectively.
         """
-        return (id(get_self(target)), id(get_func(target)))
+        return id(get_self(target)), id(get_func(target))
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Give a friendly representation of the object."""
-        return "{}({}.{})".format(
-            self.__class__.__name__,
-            self.self_name,
-            self.func_name,
-        )
+        return f"{self.__class__.__name__}({self.self_name}.{self.func_name})"
 
     __repr__ = __str__
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.self_name, self.key))
 
-    def __nonzero__(self):
+    def __bool__(self) -> bool:
         """Whether we are still a valid reference."""
         return self() is not None
 
-    def __eq__(self, other):
+    def __eq__(self, other: t.Any) -> bool:
         """Compare with another reference."""
-        if not isinstance(other, self.__class__):
-            return operator.eq(self.__class__, type(other))
-        return operator.eq(self.key, other.key)
+        if not isinstance(other, type(self)):
+            return type(self) == type(other)
+        return self.key == other.key
 
-    def __call__(self):
+    def __call__(self) -> MethodType | None:
         """Return a strong reference to the bound method.
 
         If the target cannot be retrieved, then will return None,
@@ -226,5 +243,5 @@ class BoundMethodWeakref:
         if target is not None:
             function = self.weak_func()
             if function is not None:
-                return function.__get__(target)
+                return function.__get__(target)  # type: ignore[no-any-return]
         return None

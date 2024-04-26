@@ -7,6 +7,7 @@ each manages its own receivers and message emission.
 The :func:`signal` function provides singleton behavior for named signals.
 
 """
+
 from __future__ import annotations
 
 import typing as t
@@ -51,7 +52,7 @@ class Signal:
     #: without an additional import.
     ANY = ANY
 
-    set_class: type[set] = set
+    set_class: type[set[IdentityType]] = set
 
     @lazy_property
     def receiver_connected(self) -> Signal:
@@ -103,7 +104,9 @@ class Signal:
         #: internal :class:`Signal` implementation, however the boolean value
         #: of the mapping is useful as an extremely efficient check to see if
         #: any receivers are connected to the signal.
-        self.receivers: dict[IdentityType, t.Callable | annotatable_weakref] = {}
+        self.receivers: dict[
+            IdentityType, t.Callable[[], t.Any] | annotatable_weakref
+        ] = {}
         self.is_muted = False
         self._by_receiver: dict[IdentityType, set[IdentityType]] = defaultdict(
             self.set_class
@@ -215,7 +218,7 @@ class Signal:
 
     @contextmanager
     def connected_to(
-        self, receiver: t.Callable, sender: t.Any = ANY
+        self, receiver: t.Callable[..., t.Any], sender: t.Any = ANY
     ) -> t.Generator[None, None, None]:
         """Execute a block with the signal temporarily connected to *receiver*.
 
@@ -256,7 +259,7 @@ class Signal:
             self.is_muted = False
 
     def temporarily_connected_to(
-        self, receiver: t.Callable, sender: t.Any = ANY
+        self, receiver: t.Callable[..., t.Any], sender: t.Any = ANY
     ) -> t.ContextManager[None]:
         """An alias for :meth:`connected_to`.
 
@@ -273,15 +276,16 @@ class Signal:
         warn(
             "temporarily_connected_to is deprecated; use connected_to instead.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self.connected_to(receiver, sender)
 
     def send(
         self,
         *sender: t.Any,
-        _async_wrapper: AsyncWrapperType | None = None,
+        _async_wrapper: AsyncWrapperType[t.Any, t.Any] | None = None,
         **kwargs: t.Any,
-    ) -> list[tuple[t.Callable, t.Any]]:
+    ) -> list[tuple[t.Callable[..., t.Any], t.Any]]:
         """Emit this signal on behalf of *sender*, passing on ``kwargs``.
 
         Returns a list of 2-tuples, pairing receivers with their return
@@ -311,9 +315,9 @@ class Signal:
     async def send_async(
         self,
         *sender: t.Any,
-        _sync_wrapper: SyncWrapperType | None = None,
+        _sync_wrapper: SyncWrapperType[t.Any, t.Any] | None = None,
         **kwargs: t.Any,
-    ) -> list[tuple[t.Callable, t.Any]]:
+    ) -> list[tuple[t.Callable[..., t.Any], t.Any]]:
         """Emit this signal on behalf of *sender*, passing on ``kwargs``.
 
         Returns a list of 2-tuples, pairing receivers with their return
@@ -402,7 +406,7 @@ class Signal:
                     receiver = strong
                 yield receiver  # type: ignore[misc]
 
-    def disconnect(self, receiver: t.Callable, sender: t.Any = ANY) -> None:
+    def disconnect(self, receiver: t.Callable[..., t.Any], sender: t.Any = ANY) -> None:
         """Disconnect *receiver* from this signal's events.
 
         :param receiver: a previously :meth:`connected<connect>` callable
@@ -515,7 +519,7 @@ class NamedSignal(Signal):
         return f"{base[:-1]}; {self.name!r}>"  # noqa: E702
 
 
-class Namespace(dict):
+class Namespace(dict):  # type: ignore[type-arg]
     """A mapping of signal names to signals."""
 
     def signal(self, name: str, doc: str | None = None) -> NamedSignal:
@@ -531,7 +535,7 @@ class Namespace(dict):
             return result  # type: ignore[no-any-return]
 
 
-class WeakNamespace(WeakValueDictionary):
+class WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
     """A weak mapping of signal names to signals.
 
     Automatically cleans up unused Signals when the last reference goes out

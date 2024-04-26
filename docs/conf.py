@@ -5,15 +5,21 @@ project = "Blinker"
 copyright = "2010 Jason Kirtland"
 release, version = get_version("blinker", placeholder=None)
 
+default_role = "code"
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
+    "sphinxcontrib.log_cabinet",
     "pallets_sphinx_themes",
-    "sphinx_issues",
 ]
-
 autoclass_content = "both"
 autodoc_member_order = "groupwise"
-issues_github_path = "pallets-eco/blinker"
+autodoc_typehints = "description"
+autodoc_preserve_defaults = True
+extlinks = {
+    "issue": ("https://github.com/pallets-eco/blinker/issues/%s", "#%s"),
+    "pr": ("https://github.com/pallets-eco/blinker/pull/%s", "#%s"),
+}
 
 html_theme = "flask"
 html_theme_options = {"index_sidebar_logo": False}

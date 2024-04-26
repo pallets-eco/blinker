@@ -1,32 +1,22 @@
 [project]
 name = "blinker"
-license = {file = "LICENSE.rst"}
-authors = [{name = "Jason Kirtland", email = "jek@discorporate.us"}]
-maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com"}]
 description = "Fast, simple object-to-object and broadcast signaling"
-readme = "README.rst"
-keywords = [
-    "signal",
-    "emit",
-    "events",
-    "broadcast",
-]
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+authors = [{ name = "Jason Kirtland" }]
+maintainers = [{ name = "Pallets Ecosystem", email = "contact@palletsprojects.com" }]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
 ]
 requires-python = ">=3.8"
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://blinker.readthedocs.io"
 Documentation = "https://blinker.readthedocs.io"
-"Source Code" = "https://github.com/pallets-eco/blinker/"
-"Issue Tracker" = "https://github.com/pallets-eco/blinker/issues/"
+Source = "https://github.com/pallets-eco/blinker/"
 Chat = "https://discord.gg/pallets"
 
 [build-system]
@@ -46,27 +36,48 @@ exclude = [
 ]
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 testpaths = ["tests"]
-filterwarnings = ["error"]
+filterwarnings = [
+    "error"
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+branch = true
+source = ["blinker", "tests"]
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
 
 [tool.mypy]
 python_version = "3.8"
-files = ["src/blinker"]
+files = ["src/blinker", "tests"]
 show_error_codes = true
 pretty = true
-#strict = true
-allow_redefinition = true
-disallow_subclassing_any = true
-#disallow_untyped_calls = true
-#disallow_untyped_defs = true
-disallow_incomplete_defs = true
-no_implicit_optional = true
-local_partial_types = true
-no_implicit_reexport = true
-strict_equality = true
-warn_redundant_casts = true
-warn_unused_configs = true
-warn_unused_ignores = true
-warn_return_any = true
-#warn_unreachable = True
+strict = true
+
+[tool.pyright]
+pythonVersion = "3.8"
+include = ["src/blinker", "tests"]
+typeCheckingMode = "basic"
+
+[tool.ruff]
+src = ["src"]
+fix = true
+show-fixes = true
+output-format = "full"
+
+[tool.ruff.lint]
+select = [
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle error
+    "F",  # pyflakes
+    "I",  # isort
+    "UP",  # pyupgrade
+    "W",  # pycodestyle warning
+]
+ignore-init-module-imports = true
+
+[tool.ruff.lint.isort]
+force-single-line = true
+order-by-type = false

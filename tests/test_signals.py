@@ -1,52 +1,47 @@
+from __future__ import annotations
+
 import gc
 import sys
-import time
+import typing as t
 
 import pytest
 
 import blinker
 
 
-jython = sys.platform.startswith("java")
-pypy = hasattr(sys, "pypy_version_info")
-
-
-def collect_acyclic_refs():
+def collect_acyclic_refs() -> None:
     # cpython releases these immediately without a collection
-    if jython or pypy:
+    if sys.implementation.name == "pypy":
         gc.collect()
-    if jython:
-        time.sleep(0.1)
 
 
-class Sentinel(list):
+class Sentinel(list):  # type: ignore[type-arg]
     """A signal receipt accumulator."""
 
-    def make_receiver(self, key):
+    def make_receiver(self, key: t.Any) -> t.Callable[..., t.Any]:
         """Return a generic signal receiver function logging as *key*
 
         When connected to a signal, appends (key, sender, kw) to the Sentinel.
 
         """
 
-        def receiver(*sentby, **kw):
+        def receiver(*sentby: t.Any, **kw: t.Any) -> None:
             self.append((key, sentby[0], kw))
 
-        receiver.func_name = "receiver_%s" % key
         return receiver
 
 
-def test_meta_connect():
+def test_meta_connect() -> t.Any:
     sentinel = []
 
-    def meta_received(sender, **kw):
+    def meta_received(sender: t.Any, **kw: t.Any) -> None:
         sentinel.append(dict(kw, sender=sender))
 
     assert not blinker.receiver_connected.receivers
     blinker.receiver_connected.connect(meta_received)
     assert not sentinel
 
-    def receiver(sender, **kw):
+    def receiver(sender: t.Any, **kw: t.Any) -> None:
         pass
 
     sig = blinker.Signal()
@@ -64,7 +59,7 @@ def test_meta_connect():
     blinker.receiver_connected._clear_state()
 
 
-def _test_signal_signals(sender):
+def _test_signal_signals(sender: t.Any) -> None:
     sentinel = Sentinel()
     sig = blinker.Signal()
 
@@ -107,15 +102,15 @@ def _test_signal_signals(sender):
     )
 
 
-def test_signal_signals_any_sender():
+def test_signal_signals_any_sender() -> None:
     _test_signal_signals(blinker.ANY)
 
 
-def test_signal_signals_strong_sender():
+def test_signal_signals_strong_sender() -> None:
     _test_signal_signals("squiznart")
 
 
-def test_signal_weak_receiver_vanishes():
+def test_signal_weak_receiver_vanishes() -> None:
     # non-edge-case path for weak receivers is exercised in the ANY sender
     # test above.
     sentinel = Sentinel()
@@ -152,7 +147,7 @@ def test_signal_weak_receiver_vanishes():
     assert len(sentinel) == 0
 
 
-def test_signal_signals_weak_sender():
+def test_signal_signals_weak_sender() -> None:
     sentinel = Sentinel()
     sig = blinker.Signal()
 
@@ -190,14 +185,14 @@ def test_signal_signals_weak_sender():
     assert len(sentinel) == 1
 
 
-def test_empty_bucket_growth():
-    def senders():
+def test_empty_bucket_growth() -> None:
+    def senders() -> tuple[int, int]:
         return (
             len(sig._by_sender),
             sum(len(i) for i in sig._by_sender.values()),
         )
 
-    def receivers():
+    def receivers() -> tuple[int, int]:
         return (
             len(sig._by_receiver),
             sum(len(i) for i in sig._by_receiver.values()),
@@ -233,14 +228,14 @@ def test_empty_bucket_growth():
     assert receivers() == (0, 0)
 
 
-def test_meta_connect_failure():
-    def meta_received(sender, **kw):
+def test_meta_connect_failure() -> None:
+    def meta_received(sender: t.Any, **kw: t.Any) -> None:
         raise TypeError("boom")
 
     assert not blinker.receiver_connected.receivers
     blinker.receiver_connected.connect(meta_received)
 
-    def receiver(sender, **kw):
+    def receiver(sender: t.Any, **kw: t.Any) -> None:
         pass
 
     sig = blinker.Signal()
@@ -253,7 +248,7 @@ def test_meta_connect_failure():
     blinker.receiver_connected._clear_state()
 
 
-def test_weak_namespace():
+def test_weak_namespace() -> None:
     ns = blinker.WeakNamespace()
     assert not ns
     s1 = ns.signal("abc")
@@ -270,7 +265,7 @@ def test_weak_namespace():
     assert "abc" not in ns
 
 
-def test_namespace():
+def test_namespace() -> None:
     ns = blinker.Namespace()
     assert not ns
     s1 = ns.signal("abc")
@@ -285,21 +280,15 @@ def test_namespace():
     assert "abc" in ns
 
 
-def test_weak_receiver():
+def test_weak_receiver() -> None:
     sentinel = []
 
-    def received(sender, **kw):
+    def received(sender: t.Any, **kw: t.Any) -> None:
         sentinel.append(kw)
 
     sig = blinker.Signal()
 
-    # XXX: weirdly, under jython an explicit weak=True causes this test
-    #      to fail, leaking a strong ref to the receiver somewhere.
-    #      http://bugs.jython.org/issue1586
-    if jython:
-        sig.connect(received)  # weak=True by default.
-    else:
-        sig.connect(received, weak=True)
+    sig.connect(received, weak=True)
 
     del received
     collect_acyclic_refs()
@@ -312,10 +301,10 @@ def test_weak_receiver():
     values_are_empty_sets_(sig._by_sender)
 
 
-def test_strong_receiver():
+def test_strong_receiver() -> None:
     sentinel = []
 
-    def received(sender):
+    def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
     fn_id = id(received)
@@ -332,40 +321,40 @@ def test_strong_receiver():
     assert [id(fn) for fn in sig.receivers.values()] == [fn_id]
 
 
-async def test_async_receiver():
+async def test_async_receiver() -> None:
     sentinel = []
 
-    async def received_async(sender):
+    async def received_async(sender: t.Any) -> None:
         sentinel.append(sender)
 
-    def received(sender):
+    def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
-    def wrapper(func):
-        async def inner(*args, **kwargs):
+    def wrapper(func: t.Callable[..., t.Any]) -> t.Callable[..., None]:
+        async def inner(*args: t.Any, **kwargs: t.Any) -> None:
             func(*args, **kwargs)
 
-        return inner
+        return inner  # type: ignore[return-value]
 
     sig = blinker.Signal()
     sig.connect(received)
     sig.connect(received_async)
 
-    await sig.send_async(_sync_wrapper=wrapper)
+    await sig.send_async(_sync_wrapper=wrapper)  # type: ignore[arg-type]
     assert len(sentinel) == 2
 
     with pytest.raises(RuntimeError):
         sig.send()
 
 
-def test_instancemethod_receiver():
-    sentinel = []
+def test_instancemethod_receiver() -> None:
+    sentinel: list[t.Any] = []
 
     class Receiver:
-        def __init__(self, bucket):
+        def __init__(self, bucket: list[t.Any]) -> None:
             self.bucket = bucket
 
-        def received(self, sender):
+        def received(self, sender: t.Any) -> None:
             self.bucket.append(sender)
 
     receiver = Receiver(sentinel)
@@ -383,10 +372,10 @@ def test_instancemethod_receiver():
     assert len(sentinel) == 1
 
 
-def test_filtered_receiver():
+def test_filtered_receiver() -> None:
     sentinel = []
 
-    def received(sender):
+    def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
     sig = blinker.Signal()
@@ -414,10 +403,10 @@ def test_filtered_receiver():
     assert sentinel == [123, 123]
 
 
-def test_filtered_receiver_weakref():
+def test_filtered_receiver_weakref() -> None:
     sentinel = []
 
-    def received(sender):
+    def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
     class Object:
@@ -442,7 +431,7 @@ def test_filtered_receiver_weakref():
     values_are_empty_sets_(sig._by_sender)
 
 
-def test_decorated_receiver():
+def test_decorated_receiver() -> None:
     sentinel = []
 
     class Object:
@@ -453,7 +442,7 @@ def test_decorated_receiver():
     sig = blinker.Signal()
 
     @sig.connect_via(obj)
-    def receiver(sender, **kw):
+    def receiver(sender: t.Any, **kw: t.Any) -> None:
         sentinel.append(kw)
 
     assert not sentinel
@@ -469,10 +458,10 @@ def test_decorated_receiver():
     assert sig.receivers
 
 
-def test_no_double_send():
+def test_no_double_send() -> None:
     sentinel = []
 
-    def received(sender):
+    def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
     sig = blinker.Signal()
@@ -489,8 +478,8 @@ def test_no_double_send():
     assert sentinel == [None, 123, None]
 
 
-def test_has_receivers():
-    def received(_):
+def test_has_receivers() -> None:
+    def received(_: t.Any) -> None:
         return None
 
     sig = blinker.Signal()
@@ -525,7 +514,7 @@ def test_has_receivers():
     assert sig.has_receivers_for("xyz")
 
 
-def test_instance_doc():
+def test_instance_doc() -> None:
     sig = blinker.Signal(doc="x")
     assert sig.__doc__ == "x"
 
@@ -533,15 +522,15 @@ def test_instance_doc():
     assert sig.__doc__ == "x"
 
 
-def test_named_blinker():
+def test_named_blinker() -> None:
     sig = blinker.NamedSignal("squiznart")
     assert "squiznart" in repr(sig)
 
 
-def test_mute_signal():
+def test_mute_signal() -> None:
     sentinel = []
 
-    def received(sender):
+    def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
     sig = blinker.Signal()
@@ -555,15 +544,15 @@ def test_mute_signal():
     assert 456 not in sentinel
 
 
-def values_are_empty_sets_(dictionary):
+def values_are_empty_sets_(dictionary: dict[t.Any, t.Any]) -> None:
     for val in dictionary.values():
         assert val == set()
 
 
-def test_int_sender():
+def test_int_sender() -> None:
     sentinel = []
 
-    def received(sender):
+    def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
     sig = blinker.Signal()
