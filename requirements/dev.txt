@@ -104,7 +104,7 @@ pyproject-api==1.6.1
     # via tox
 pyright==1.1.360
     # via -r typing.txt
-pytest==8.1.1
+pytest==8.1.2
     # via
     #   -r tests.txt
     #   -r typing.txt
