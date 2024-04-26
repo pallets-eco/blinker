@@ -11,10 +11,10 @@ The :func:`signal` function provides singleton behavior for named signals.
 from __future__ import annotations
 
 import typing as t
+import warnings
 from collections import defaultdict
 from contextlib import contextmanager
 from inspect import iscoroutinefunction
-from warnings import warn
 from weakref import WeakValueDictionary
 
 from blinker._utilities import annotatable_weakref
@@ -176,9 +176,9 @@ class Signal:
             except TypeError as e:
                 self.disconnect(receiver, sender)
                 raise e
-        if receiver_connected.receivers and self is not receiver_connected:
+        if _receiver_connected.receivers and self is not _receiver_connected:
             try:
-                receiver_connected.send(
+                _receiver_connected.send(
                     self, receiver_arg=receiver, sender_arg=sender, weak_arg=weak
                 )
             except TypeError as e:
@@ -268,13 +268,12 @@ class Signal:
 
         .. versionadded:: 0.9
 
-        .. versionchanged:: 1.1
-          Renamed to :meth:`connected_to`.  ``temporarily_connected_to`` was
-          deprecated in 1.2 and will be removed in a subsequent version.
-
+        .. deprecated:: 1.1
+            Renamed to ``connected_to``. Will be removed in Blinker 1.9.
         """
-        warn(
-            "temporarily_connected_to is deprecated; use connected_to instead.",
+        warnings.warn(
+            "'temporarily_connected_to' is renamed to 'connected_to'. The old name is"
+            " deprecated and will be removed in Blinker 1.9.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -485,7 +484,7 @@ class Signal:
         self._by_receiver.clear()
 
 
-receiver_connected = Signal(
+_receiver_connected = Signal(
     """\
 Sent by a :class:`Signal` after a receiver connects.
 
@@ -495,12 +494,9 @@ Sent by a :class:`Signal` after a receiver connects.
 :keyword weak_arg: true if the connection to receiver_arg is a weak reference
 
 .. deprecated:: 1.2
-
-As of 1.2, individual signals have their own private
-:attr:`~Signal.receiver_connected` and
-:attr:`~Signal.receiver_disconnected` signals with a slightly simplified
-call signature.  This global signal is planned to be removed in 1.6.
-
+    Individual signals have their own :attr:`~Signal.receiver_connected` and
+    :attr:`~Signal.receiver_disconnected` signals with a slightly simplified
+    call signature. This global signal will be removed in Blinker 1.9.
 """
 )
 
@@ -560,3 +556,17 @@ class WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
 
 
 signal = Namespace().signal
+
+
+def __getattr__(name: str) -> t.Any:
+    if name == "reciever_connected":
+        warnings.warn(
+            "The global 'reciever_connected' signal is deprecated and will be"
+            " removed in Blinker 1.9. Use 'Signal.receiver_connected' and"
+            " 'Signal.reciever_disconnected' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _receiver_connected
+
+    raise AttributeError(name)

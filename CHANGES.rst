@@ -5,6 +5,10 @@ Unreleased
 
 -   Deprecate the ``__version__`` attribute. Use feature detection, or
     ``importlib.metadata.version("blinker")``, instead. :issue:`128`
+-   Specify that the deprecated ``temporarily_connected_to`` will be removed in
+    the next version.
+-   Show a deprecation warning for the deprecated global ``receiver_connected``
+    signal and specify that it will be removed in the next version.
 
 
 Version 1.7.0

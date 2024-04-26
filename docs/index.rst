@@ -268,9 +268,6 @@ documentation will be picked up by most documentation generators (such
 as sphinx) and is nice for documenting any additional data parameters
 that will be sent down with the signal.
 
-See the documentation of the :obj:`receiver_connected` built-in signal
-for an example.
-
 
 Async receivers
 ---------------
@@ -366,8 +363,6 @@ Basic Signals
 +++++++++++++
 
 .. autodata:: blinker.base.ANY
-
-.. autodata:: blinker.base.receiver_connected
 
 .. autoclass:: Signal
    :members:
