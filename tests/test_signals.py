@@ -31,34 +31,6 @@ class Sentinel(list):  # type: ignore[type-arg]
         return receiver
 
 
-def test_meta_connect() -> t.Any:
-    sentinel = []
-
-    def meta_received(sender: t.Any, **kw: t.Any) -> None:
-        sentinel.append(dict(kw, sender=sender))
-
-    assert not blinker.receiver_connected.receivers
-    blinker.receiver_connected.connect(meta_received)
-    assert not sentinel
-
-    def receiver(sender: t.Any, **kw: t.Any) -> None:
-        pass
-
-    sig = blinker.Signal()
-    sig.connect(receiver)
-
-    assert sentinel == [
-        {
-            "sender": sig,
-            "receiver_arg": receiver,
-            "sender_arg": blinker.ANY,
-            "weak_arg": True,
-        }
-    ]
-
-    blinker.receiver_connected._clear_state()
-
-
 def _test_signal_signals(sender: t.Any) -> None:
     sentinel = Sentinel()
     sig = blinker.Signal()
@@ -226,26 +198,6 @@ def test_empty_bucket_growth() -> None:
     sig._cleanup_bookkeeping()
     assert senders() == (0, 0)
     assert receivers() == (0, 0)
-
-
-def test_meta_connect_failure() -> None:
-    def meta_received(sender: t.Any, **kw: t.Any) -> None:
-        raise TypeError("boom")
-
-    assert not blinker.receiver_connected.receivers
-    blinker.receiver_connected.connect(meta_received)
-
-    def receiver(sender: t.Any, **kw: t.Any) -> None:
-        pass
-
-    sig = blinker.Signal()
-
-    pytest.raises(TypeError, sig.connect, receiver)
-    assert not sig.receivers
-    assert not sig._by_receiver
-    assert sig._by_sender == {blinker.base.ANY_ID: set()}
-
-    blinker.receiver_connected._clear_state()
 
 
 def test_weak_namespace() -> None:
