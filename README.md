@@ -9,7 +9,7 @@ interested parties to subscribe to events, or "signals".
 > [!IMPORTANT]\
 > This project is part of the Pallets Community Ecosystem. Pallets is the open
 > source organization that maintains Flask; Pallets-Eco enables community
-> maintenance of Flask extensions. If you are interested in helping maintain
+> maintenance of related projects. If you are interested in helping maintain
 > this project, please reach out on [the Pallets Discord server][discord].
 >
 > [discord]: https://discord.gg/pallets
