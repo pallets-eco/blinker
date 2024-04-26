@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import pickle
 
 from blinker._utilities import symbol
 
 
-def test_symbols():
+def test_symbols() -> None:
     foo = symbol("foo")
     assert foo.name == "foo"
     assert foo is symbol("foo")
@@ -16,7 +18,7 @@ def test_symbols():
     assert repr(foo) == "foo"
 
 
-def test_pickled_symbols():
+def test_pickled_symbols() -> None:
     foo = symbol("foo")
 
     for _ in 0, 1, 2:
