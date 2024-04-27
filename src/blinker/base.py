@@ -523,7 +523,7 @@ class Namespace(dict):  # type: ignore[type-arg]
             return result  # type: ignore[no-any-return]
 
 
-class WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
+class _WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
     """A weak mapping of signal names to signals.
 
     Automatically cleans up unused Signals when the last reference goes out
@@ -560,12 +560,12 @@ class WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
 
 default_namespace = Namespace()
 """A default namespace for creating named signals. :func:`signal` creates a
-signal in this namespace.
+:class:`NamedSignal` in this namespace.
 """
 
 signal = default_namespace.signal
-"""Create a named signal in :data:`default_namespace`. Repeated calls with
-the same name will return the same signal.
+"""Create a :class:`NamedSignal` in :data:`default_namespace`. Repeated calls
+with the same name will return the same signal.
 """
 
 
@@ -579,5 +579,13 @@ def __getattr__(name: str) -> t.Any:
             stacklevel=2,
         )
         return _receiver_connected
+
+    if name == "WeakNamespace":
+        warnings.warn(
+            "'WeakNamespace' is deprecated and will be removed in Blinker 1.9."
+            " Use 'Namespace' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     raise AttributeError(name)

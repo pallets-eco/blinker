@@ -371,22 +371,15 @@ Basic Signals
 Named Signals
 +++++++++++++
 
-.. function:: signal(name, doc=None)
+.. autofunction:: signal
 
-  Return the :class:`NamedSignal` *name*, creating it if required.
-
-  Repeated calls to this function will return the same signal object.
-  Signals are created in a global :class:`Namespace`.
+.. autodata:: default_namespace
 
 .. autoclass:: NamedSignal
    :show-inheritance:
    :members:
 
 .. autoclass:: Namespace
-   :show-inheritance:
-   :members: signal
-
-.. autoclass:: WeakNamespace
    :show-inheritance:
    :members: signal
 

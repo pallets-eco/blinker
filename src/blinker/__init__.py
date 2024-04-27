@@ -8,7 +8,6 @@ from .base import NamedSignal
 from .base import Namespace
 from .base import Signal
 from .base import signal
-from .base import WeakNamespace
 
 __all__ = [
     "ANY",
@@ -17,7 +16,6 @@ __all__ = [
     "Namespace",
     "Signal",
     "signal",
-    "WeakNamespace",
 ]
 
 
@@ -47,5 +45,16 @@ def __getattr__(name: str) -> t.Any:
             stacklevel=2,
         )
         return _receiver_connected
+
+    if name == "WeakNamespace":
+        from .base import _WeakNamespace
+
+        warnings.warn(
+            "'WeakNamespace' is deprecated and will be removed in Blinker 1.9."
+            " Use 'Namespace' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _WeakNamespace
 
     raise AttributeError(name)
