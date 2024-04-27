@@ -546,7 +546,15 @@ class WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
             return result  # type: ignore[no-any-return]
 
 
-signal = Namespace().signal
+default_namespace = Namespace()
+"""A default namespace for creating named signals. :func:`signal` creates a
+signal in this namespace.
+"""
+
+signal = default_namespace.signal
+"""Create a named signal in :data:`default_namespace`. Repeated calls with
+the same name will return the same signal.
+"""
 
 
 def __getattr__(name: str) -> t.Any:
