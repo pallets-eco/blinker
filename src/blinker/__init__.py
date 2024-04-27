@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import typing as t
 
-from blinker.base import ANY
-from blinker.base import NamedSignal
-from blinker.base import Namespace
-from blinker.base import Signal
-from blinker.base import signal
-from blinker.base import WeakNamespace
+from .base import ANY
+from .base import NamedSignal
+from .base import Namespace
+from .base import Signal
+from .base import signal
+from .base import WeakNamespace
 
 __all__ = [
     "ANY",

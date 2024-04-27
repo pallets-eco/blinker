@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import pickle
 
-from blinker._utilities import symbol
+from blinker._utilities import Symbol
 
 
 def test_symbols() -> None:
-    foo = symbol("foo")
+    foo = Symbol("foo")
     assert foo.name == "foo"
-    assert foo is symbol("foo")
+    assert foo is Symbol("foo")
 
-    bar = symbol("bar")
+    bar = Symbol("bar")
     assert foo is not bar
     assert foo != bar
     assert not foo == bar
@@ -19,7 +19,7 @@ def test_symbols() -> None:
 
 
 def test_pickled_symbols() -> None:
-    foo = symbol("foo")
+    foo = Symbol("foo")
 
     for _ in 0, 1, 2:
         roundtrip = pickle.loads(pickle.dumps(foo))
