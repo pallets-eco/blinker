@@ -1,6 +1,6 @@
 [project]
 name = "blinker"
-version = "1.8.0.dev"
+version = "1.8.0"
 description = "Fast, simple object-to-object and broadcast signaling"
 readme = "README.md"
 license = { file = "LICENSE.txt" }
