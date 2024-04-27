@@ -1,7 +1,7 @@
 Version 1.8.0
 -------------
 
-Unreleased
+Released 2024-04-27
 
 -   Deprecate the ``__version__`` attribute. Use feature detection, or
     ``importlib.metadata.version("blinker")``, instead. :issue:`128`
