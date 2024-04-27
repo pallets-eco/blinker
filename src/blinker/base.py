@@ -5,44 +5,40 @@ API client code seen in a blog post.  Signals are first-class objects and
 each manages its own receivers and message emission.
 
 The :func:`signal` function provides singleton behavior for named signals.
-
 """
 
 from __future__ import annotations
 
 import typing as t
 import warnings
+import weakref
 from collections import defaultdict
 from contextlib import contextmanager
+from functools import cached_property
 from inspect import iscoroutinefunction
 from weakref import WeakValueDictionary
 
-from blinker._utilities import annotatable_weakref
-from blinker._utilities import hashable_identity
-from blinker._utilities import IdentityType
-from blinker._utilities import lazy_property
-from blinker._utilities import reference
-from blinker._utilities import symbol
-from blinker._utilities import WeakTypes
+from ._utilities import make_id
+from ._utilities import make_ref
+from ._utilities import Symbol
 
 if t.TYPE_CHECKING:
     import typing_extensions as te
 
-    T_callable = t.TypeVar("T_callable", bound=t.Callable[..., t.Any])
-
+    F = t.TypeVar("F", bound=t.Callable[..., t.Any])
     T = t.TypeVar("T")
     P = te.ParamSpec("P")
 
-    AsyncWrapperType = t.Callable[[t.Callable[P, t.Awaitable[T]]], t.Callable[P, T]]
-    SyncWrapperType = t.Callable[[t.Callable[P, T]], t.Callable[P, t.Awaitable[T]]]
+    class PAsyncWrapper(t.Protocol):
+        def __call__(self, f: t.Callable[P, t.Awaitable[T]]) -> t.Callable[P, T]: ...
 
-ANY = symbol("ANY")
-ANY.__doc__ = 'Token for "any sender".'
+    class PSyncWrapper(t.Protocol):
+        def __call__(self, f: t.Callable[P, T]) -> t.Callable[P, t.Awaitable[T]]: ...
+
+
+ANY = Symbol("ANY")
+"""Token for "any sender"."""
 ANY_ID = 0
-
-# NOTE: We need a reference to cast for use in weakref callbacks otherwise
-#       t.cast may have already been set to None during finalization.
-cast = t.cast
 
 
 class Signal:
@@ -52,9 +48,9 @@ class Signal:
     #: without an additional import.
     ANY = ANY
 
-    set_class: type[set[IdentityType]] = set
+    set_class: type[set[t.Any]] = set
 
-    @lazy_property
+    @cached_property
     def receiver_connected(self) -> Signal:
         """Emitted after each :meth:`connect`.
 
@@ -62,11 +58,10 @@ class Signal:
         arguments are passed through: *receiver*, *sender*, and *weak*.
 
         .. versionadded:: 1.2
-
         """
         return Signal(doc="Emitted after a receiver connects.")
 
-    @lazy_property
+    @cached_property
     def receiver_disconnected(self) -> Signal:
         """Emitted after :meth:`disconnect`.
 
@@ -86,18 +81,16 @@ class Signal:
         callback on weak receivers and senders.
 
         .. versionadded:: 1.2
-
         """
         return Signal(doc="Emitted after a receiver disconnects.")
 
     def __init__(self, doc: str | None = None) -> None:
         """
-        :param doc: optional.  If provided, will be assigned to the signal's
-          __doc__ attribute.
-
+        :param doc: Set the instance's ``__doc__`` attribute for documentation.
         """
         if doc:
             self.__doc__ = doc
+
         #: A mapping of connected receivers.
         #:
         #: The values of this mapping are not meaningful outside of the
@@ -105,20 +98,14 @@ class Signal:
         #: of the mapping is useful as an extremely efficient check to see if
         #: any receivers are connected to the signal.
         self.receivers: dict[
-            IdentityType, t.Callable[[], t.Any] | annotatable_weakref
+            t.Any, weakref.ref[t.Callable[..., t.Any]] | t.Callable[..., t.Any]
         ] = {}
-        self.is_muted = False
-        self._by_receiver: dict[IdentityType, set[IdentityType]] = defaultdict(
-            self.set_class
-        )
-        self._by_sender: dict[IdentityType, set[IdentityType]] = defaultdict(
-            self.set_class
-        )
-        self._weak_senders: dict[IdentityType, annotatable_weakref] = {}
+        self.is_muted: bool = False
+        self._by_receiver: dict[t.Any, set[t.Any]] = defaultdict(self.set_class)
+        self._by_sender: dict[t.Any, set[t.Any]] = defaultdict(self.set_class)
+        self._weak_senders: dict[t.Any, weakref.ref[t.Any]] = {}
 
-    def connect(
-        self, receiver: T_callable, sender: t.Any = ANY, weak: bool = True
-    ) -> T_callable:
+    def connect(self, receiver: F, sender: t.Any = ANY, weak: bool = True) -> F:
         """Connect *receiver* to signal events sent by *sender*.
 
         :param receiver: A callable.  Will be invoked by :meth:`send` with
@@ -135,60 +122,51 @@ class Signal:
         :param weak: If true, the Signal will hold a weakref to *receiver*
           and automatically disconnect when *receiver* goes out of scope or
           is garbage collected.  Defaults to True.
-
         """
-        receiver_id = hashable_identity(receiver)
-        receiver_ref: T_callable | annotatable_weakref
+        receiver_id = make_id(receiver)
+        sender_id = ANY_ID if sender is ANY else make_id(sender)
 
         if weak:
-            receiver_ref = reference(receiver, self._cleanup_receiver)
-            receiver_ref.receiver_id = receiver_id
+            self.receivers[receiver_id] = make_ref(
+                receiver, self._make_cleanup_receiver(receiver_id)
+            )
         else:
-            receiver_ref = receiver
-        sender_id: IdentityType
-        if sender is ANY:
-            sender_id = ANY_ID
-        else:
-            sender_id = hashable_identity(sender)
+            self.receivers[receiver_id] = receiver
 
-        self.receivers.setdefault(receiver_id, receiver_ref)
         self._by_sender[sender_id].add(receiver_id)
         self._by_receiver[receiver_id].add(sender_id)
-        del receiver_ref
 
         if sender is not ANY and sender_id not in self._weak_senders:
-            # wire together a cleanup for weakref-able senders
+            # store a cleanup for weakref-able senders
             try:
-                sender_ref = reference(sender, self._cleanup_sender)
-                sender_ref.sender_id = sender_id
+                self._weak_senders[sender_id] = make_ref(
+                    sender, self._make_cleanup_sender(sender_id)
+                )
             except TypeError:
                 pass
-            else:
-                self._weak_senders.setdefault(sender_id, sender_ref)
-                del sender_ref
 
-        # broadcast this connection.  if receivers raise, disconnect.
         if "receiver_connected" in self.__dict__ and self.receiver_connected.receivers:
             try:
                 self.receiver_connected.send(
                     self, receiver=receiver, sender=sender, weak=weak
                 )
-            except TypeError as e:
+            except TypeError:
+                # TODO no explanation or test for this
                 self.disconnect(receiver, sender)
-                raise e
+                raise
+
         if _receiver_connected.receivers and self is not _receiver_connected:
             try:
                 _receiver_connected.send(
                     self, receiver_arg=receiver, sender_arg=sender, weak_arg=weak
                 )
-            except TypeError as e:
+            except TypeError:
                 self.disconnect(receiver, sender)
-                raise e
+                raise
+
         return receiver
 
-    def connect_via(
-        self, sender: t.Any, weak: bool = False
-    ) -> t.Callable[[T_callable], T_callable]:
+    def connect_via(self, sender: t.Any, weak: bool = False) -> t.Callable[[F], F]:
         """Connect the decorated function as a receiver for *sender*.
 
         :param sender: Any object or :obj:`ANY`.  The decorated function
@@ -207,10 +185,9 @@ class Signal:
 
 
         .. versionadded:: 1.1
-
         """
 
-        def decorator(fn: T_callable) -> T_callable:
+        def decorator(fn: F) -> F:
             self.connect(fn, sender, weak)
             return fn
 
@@ -240,6 +217,7 @@ class Signal:
 
         """
         self.connect(receiver, sender=sender, weak=False)
+
         try:
             yield None
         finally:
@@ -251,10 +229,9 @@ class Signal:
         Useful for test purposes.
         """
         self.is_muted = True
+
         try:
             yield None
-        except Exception as e:
-            raise e
         finally:
             self.is_muted = False
 
@@ -281,8 +258,10 @@ class Signal:
 
     def send(
         self,
-        *sender: t.Any,
-        _async_wrapper: AsyncWrapperType[t.Any, t.Any] | None = None,
+        sender: t.Any | None = None,
+        /,
+        *,
+        _async_wrapper: PAsyncWrapper | None = None,
         **kwargs: t.Any,
     ) -> list[tuple[t.Callable[..., t.Any], t.Any]]:
         """Emit this signal on behalf of *sender*, passing on ``kwargs``.
@@ -300,21 +279,27 @@ class Signal:
         if self.is_muted:
             return []
 
-        sender = self._extract_sender(sender)
         results = []
+
         for receiver in self.receivers_for(sender):
             if iscoroutinefunction(receiver):
                 if _async_wrapper is None:
-                    raise RuntimeError("Cannot send to a coroutine function")
-                receiver = _async_wrapper(receiver)
-            result = receiver(sender, **kwargs)
+                    raise RuntimeError("Cannot send to a coroutine function.")
+
+                result = _async_wrapper(receiver)(sender, **kwargs)
+            else:
+                result = receiver(sender, **kwargs)
+
             results.append((receiver, result))
+
         return results
 
     async def send_async(
         self,
-        *sender: t.Any,
-        _sync_wrapper: SyncWrapperType[t.Any, t.Any] | None = None,
+        sender: t.Any | None = None,
+        /,
+        *,
+        _sync_wrapper: PSyncWrapper | None = None,
         **kwargs: t.Any,
     ) -> list[tuple[t.Callable[..., t.Any], t.Any]]:
         """Emit this signal on behalf of *sender*, passing on ``kwargs``.
@@ -332,39 +317,20 @@ class Signal:
         if self.is_muted:
             return []
 
-        sender = self._extract_sender(sender)
         results = []
+
         for receiver in self.receivers_for(sender):
             if not iscoroutinefunction(receiver):
                 if _sync_wrapper is None:
-                    raise RuntimeError("Cannot send to a non-coroutine function")
-                receiver = _sync_wrapper(receiver)
-            result = await receiver(sender, **kwargs)
+                    raise RuntimeError("Cannot send to a non-coroutine function.")
+
+                result = await _sync_wrapper(receiver)(sender, **kwargs)
+            else:
+                result = await receiver(sender, **kwargs)
+
             results.append((receiver, result))
+
         return results
-
-    def _extract_sender(self, sender: t.Any) -> t.Any:
-        if not self.receivers:
-            # Ensure correct signature even on no-op sends, disable with -O
-            # for lowest possible cost.
-            if __debug__ and sender and len(sender) > 1:
-                raise TypeError(
-                    f"send() accepts only one positional argument, {len(sender)} given"
-                )
-            return []
-
-        # Using '*sender' rather than 'sender=None' allows 'sender' to be
-        # used as a keyword argument- i.e. it's an invisible name in the
-        # function signature.
-        if len(sender) == 0:
-            sender = None
-        elif len(sender) > 1:
-            raise TypeError(
-                f"send() accepts only one positional argument, {len(sender)} given"
-            )
-        else:
-            sender = sender[0]
-        return sender
 
     def has_receivers_for(self, sender: t.Any) -> bool:
         """True if there is probably a receiver for *sender*.
@@ -376,34 +342,46 @@ class Signal:
         """
         if not self.receivers:
             return False
+
         if self._by_sender[ANY_ID]:
             return True
+
         if sender is ANY:
             return False
-        return hashable_identity(sender) in self._by_sender
+
+        return make_id(sender) in self._by_sender
 
     def receivers_for(
         self, sender: t.Any
-    ) -> t.Generator[t.Callable[[t.Any], t.Any], None, None]:
+    ) -> t.Generator[t.Callable[..., t.Any], None, None]:
         """Iterate all live receivers listening for *sender*."""
         # TODO: test receivers_for(ANY)
-        if self.receivers:
-            sender_id = hashable_identity(sender)
-            if sender_id in self._by_sender:
-                ids = self._by_sender[ANY_ID] | self._by_sender[sender_id]
-            else:
-                ids = self._by_sender[ANY_ID].copy()
-            for receiver_id in ids:
-                receiver = self.receivers.get(receiver_id)
-                if receiver is None:
+        if not self.receivers:
+            return
+
+        sender_id = make_id(sender)
+
+        if sender_id in self._by_sender:
+            ids = self._by_sender[ANY_ID] | self._by_sender[sender_id]
+        else:
+            ids = self._by_sender[ANY_ID].copy()
+
+        for receiver_id in ids:
+            receiver = self.receivers.get(receiver_id)
+
+            if receiver is None:
+                continue
+
+            if isinstance(receiver, weakref.ref):
+                strong = receiver()
+
+                if strong is None:
+                    self._disconnect(receiver_id, ANY_ID)
                     continue
-                if isinstance(receiver, WeakTypes):
-                    strong = receiver()
-                    if strong is None:
-                        self._disconnect(receiver_id, ANY_ID)
-                        continue
-                    receiver = strong
-                yield receiver  # type: ignore[misc]
+
+                yield strong
+            else:
+                yield receiver
 
     def disconnect(self, receiver: t.Callable[..., t.Any], sender: t.Any = ANY) -> None:
         """Disconnect *receiver* from this signal's events.
@@ -414,12 +392,14 @@ class Signal:
           to disconnect from all senders.  Defaults to ``ANY``.
 
         """
-        sender_id: IdentityType
+        sender_id: t.Hashable
+
         if sender is ANY:
             sender_id = ANY_ID
         else:
-            sender_id = hashable_identity(sender)
-        receiver_id = hashable_identity(receiver)
+            sender_id = make_id(sender)
+
+        receiver_id = make_id(receiver)
         self._disconnect(receiver_id, sender_id)
 
         if (
@@ -428,27 +408,40 @@ class Signal:
         ):
             self.receiver_disconnected.send(self, receiver=receiver, sender=sender)
 
-    def _disconnect(self, receiver_id: IdentityType, sender_id: IdentityType) -> None:
+    def _disconnect(self, receiver_id: t.Hashable, sender_id: t.Hashable) -> None:
         if sender_id == ANY_ID:
-            if self._by_receiver.pop(receiver_id, False):
+            if self._by_receiver.pop(receiver_id, None) is not None:
                 for bucket in self._by_sender.values():
                     bucket.discard(receiver_id)
+
             self.receivers.pop(receiver_id, None)
         else:
             self._by_sender[sender_id].discard(receiver_id)
             self._by_receiver[receiver_id].discard(sender_id)
 
-    def _cleanup_receiver(self, receiver_ref: annotatable_weakref) -> None:
+    def _make_cleanup_receiver(
+        self, receiver_id: t.Hashable
+    ) -> t.Callable[[weakref.ref[t.Callable[..., t.Any]]], None]:
         """Disconnect a receiver from all senders."""
-        self._disconnect(cast(IdentityType, receiver_ref.receiver_id), ANY_ID)
 
-    def _cleanup_sender(self, sender_ref: annotatable_weakref) -> None:
+        def cleanup(ref: weakref.ref[t.Callable[..., t.Any]]) -> None:
+            self._disconnect(receiver_id, ANY_ID)
+
+        return cleanup
+
+    def _make_cleanup_sender(
+        self, sender_id: t.Hashable
+    ) -> t.Callable[[weakref.ref[t.Any]], None]:
         """Disconnect all receivers from a sender."""
-        sender_id = cast(IdentityType, sender_ref.sender_id)
         assert sender_id != ANY_ID
-        self._weak_senders.pop(sender_id, None)
-        for receiver_id in self._by_sender.pop(sender_id, ()):
-            self._by_receiver[receiver_id].discard(sender_id)
+
+        def cleanup(ref: weakref.ref[t.Any]) -> None:
+            self._weak_senders.pop(sender_id, None)
+
+            for receiver_id in self._by_sender.pop(sender_id, ()):
+                self._by_receiver[receiver_id].discard(sender_id)
+
+        return cleanup
 
     def _cleanup_bookkeeping(self) -> None:
         """Prune unused sender/receiver bookkeeping. Not threadsafe.
@@ -472,9 +465,9 @@ class Signal:
         failure mode is perhaps not a big deal for you.
         """
         for mapping in (self._by_sender, self._by_receiver):
-            for _id, bucket in list(mapping.items()):
+            for ident, bucket in list(mapping.items()):
                 if not bucket:
-                    mapping.pop(_id, None)
+                    mapping.pop(ident, None)
 
     def _clear_state(self) -> None:
         """Throw away all signal state.  Useful for unit tests."""
@@ -505,13 +498,13 @@ class NamedSignal(Signal):
     """A named generic notification emitter."""
 
     def __init__(self, name: str, doc: str | None = None) -> None:
-        Signal.__init__(self, doc)
+        super().__init__(doc)
 
         #: The name of this signal.
-        self.name = name
+        self.name: str = name
 
     def __repr__(self) -> str:
-        base = Signal.__repr__(self)
+        base = super().__repr__()
         return f"{base[:-1]}; {self.name!r}>"  # noqa: E702
 
 
@@ -522,7 +515,6 @@ class Namespace(dict):  # type: ignore[type-arg]
         """Return the :class:`NamedSignal` *name*, creating it if required.
 
         Repeated calls to this function will return the same signal object.
-
         """
         try:
             return self[name]  # type: ignore[no-any-return]
@@ -539,7 +531,6 @@ class WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
     compatibility with Blinker <= 1.2, and may be dropped in the future.
 
     .. versionadded:: 1.3
-
     """
 
     def signal(self, name: str, doc: str | None = None) -> NamedSignal:
