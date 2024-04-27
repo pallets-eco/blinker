@@ -11,6 +11,8 @@ Unreleased
     signal and specify that it will be removed in the next version.
 -   Greatly simplify how the library uses weakrefs. This is a significant change
     internally but should not affect any public API. :pr:`144`
+-   Expose the namespace used by ``signal()`` as ``default_namespace``.
+    :pr:`145`
 
 
 Version 1.7.0
