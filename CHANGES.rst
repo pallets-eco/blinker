@@ -9,6 +9,8 @@ Unreleased
     the next version.
 -   Show a deprecation warning for the deprecated global ``receiver_connected``
     signal and specify that it will be removed in the next version.
+-   Show a deprecation warning for the deprecated ``WeakNamespace`` and specify
+    that it will be removed in the next version.
 -   Greatly simplify how the library uses weakrefs. This is a significant change
     internally but should not affect any public API. :pr:`144`
 -   Expose the namespace used by ``signal()`` as ``default_namespace``.

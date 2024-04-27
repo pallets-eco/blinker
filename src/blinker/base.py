@@ -531,7 +531,19 @@ class WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
     compatibility with Blinker <= 1.2, and may be dropped in the future.
 
     .. versionadded:: 1.3
+
+    .. deprecated:: 1.3
+        Will be removed in Blinker 1.9.
     """
+
+    def __init__(self) -> None:
+        warnings.warn(
+            "'WeakNamespace' is deprecated and will be removed in Blinker 1.9."
+            " Use 'Namespace' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__()
 
     def signal(self, name: str, doc: str | None = None) -> NamedSignal:
         """Return the :class:`NamedSignal` *name*, creating it if required.
