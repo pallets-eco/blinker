@@ -34,50 +34,55 @@ Released 2023-11-01
 
 -   Fixed messages printed to standard error about unraisable exceptions during
     signal cleanup, typically during interpreter shutdown. :pr:`123`
--   Allow the Signal set_class to be customised, to allow calling of receivers
-    in registration order. :pr:`116`.
+-   Allow the Signal ``set_class`` to be customised, to allow calling of
+    receivers in registration order. :pr:`116`.
 -   Drop Python 3.7 and support Python 3.12. :pr:`126`
+
 
 Version 1.6.3
 -------------
 
 Released 2023-09-23
 
--   Fix `SyncWrapperType` and `AsyncWrapperType` :pr:`108`
--   Fixed issue where ``signal.connected_to`` would not disconnect the
-    receiver if an instance of ``BaseException`` was raised. :pr:`114`
+-   Fix ``SyncWrapperType`` and ``AsyncWrapperType`` :pr:`108`
+-   Fixed issue where ``connected_to`` would not disconnect the receiver if an
+    instance of ``BaseException`` was raised. :pr:`114`
+
 
 Version 1.6.2
 -------------
 
 Released 2023-04-12
 
--   Type annotations are not evaluated at runtime. typing-extensions is not a runtime
-    dependency. :pr:`94`
+-   Type annotations are not evaluated at runtime. typing-extensions is not a
+    runtime dependency. :pr:`94`
+
 
 Version 1.6.1
 -------------
 
 Released 2023-04-09
 
--   Ensure that py.typed is present in the distributions (to enable other
-    projects to use blinker's typing).
--   Require typing-extensions > 4.2 to ensure it includes
-    ParamSpec. :issue:`90`
+-   Ensure that ``py.typed`` is present in the distributions (to enable other
+    projects to use Blinker's typing).
+-   Require typing-extensions > 4.2 to ensure it includes ``ParamSpec``.
+    :issue:`90`
+
 
 Version 1.6
 -----------
 
 Released 2023-04-02
 
--   Add a muted context manager to temporarily turn off a
-    signal. :pr:`84`
--   Allow int senders (alongside existing string senders). :pr:`83`
--   Add a send_async method to the Signal to allow signals to send to
-    coroutine receivers. :pr:`76`
--   Update and modernise the project structure to match that used by the
-    pallets projects. :pr:`77`
--   Add an intial set of type hints for the project.
+-   Add a ``muted`` context manager to temporarily turn off a signal. :pr:`84`
+-   ``int`` instances with the same value will be treated as the same sender,
+    the same as ``str`` instances. :pr:`83`
+-   Add a ``send_async`` method to allow signals to send to coroutine receivers.
+    :pr:`76`
+-   Update and modernise the project structure to match that used by the Pallets
+    projects. :pr:`77`
+-   Add an initial set of type hints for the project.
+
 
 Version 1.5
 -----------

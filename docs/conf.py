@@ -12,7 +12,6 @@ extensions = [
     "sphinxcontrib.log_cabinet",
     "pallets_sphinx_themes",
 ]
-autoclass_content = "both"
 autodoc_member_order = "groupwise"
 autodoc_typehints = "description"
 autodoc_preserve_defaults = True
