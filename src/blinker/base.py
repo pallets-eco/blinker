@@ -604,11 +604,11 @@ same signal.
 
 
 def __getattr__(name: str) -> t.Any:
-    if name == "reciever_connected":
+    if name == "receiver_connected":
         warnings.warn(
-            "The global 'reciever_connected' signal is deprecated and will be"
+            "The global 'receiver_connected' signal is deprecated and will be"
             " removed in Blinker 1.9. Use 'Signal.receiver_connected' and"
-            " 'Signal.reciever_disconnected' instead.",
+            " 'Signal.receiver_disconnected' instead.",
             DeprecationWarning,
             stacklevel=2,
         )
