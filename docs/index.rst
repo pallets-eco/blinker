@@ -6,6 +6,8 @@ Blinker Documentation
 .. image:: _static/blinker-named.png
     :align: center
 
+.. currentmodule:: blinker
+
 Blinker provides fast & simple object-to-object and broadcast
 signaling for Python objects.
 
@@ -357,27 +359,38 @@ All public API members can (and should) be imported from ``blinker``::
 
   from blinker import ANY, signal
 
-.. currentmodule:: blinker.base
-
 Basic Signals
 +++++++++++++
 
-.. autodata:: blinker.base.ANY
+.. data:: ANY
+
+    Symbol for "any sender".
 
 .. autoclass:: Signal
    :members:
-   :undoc-members:
 
 Named Signals
 +++++++++++++
 
-.. autofunction:: signal
+.. function:: signal(name, doc=None)
 
-.. autodata:: default_namespace
+    Return a :class:`NamedSignal` in :data:`default_namespace` for the given
+    name, creating it if required. Repeated calls with the same name return the
+    same signal.
+
+    :param name: The name of the signal.
+    :type name: str
+    :param doc: The docstring of the signal.
+    :type doc: str | None
+    :rtype: NamedSignal
+
+.. data:: default_namespace
+
+    A default :class:`Namespace` for creating named signals. :func:`signal`
+    creates a :class:`NamedSignal` in this namespace.
 
 .. autoclass:: NamedSignal
    :show-inheritance:
-   :members:
 
 .. autoclass:: Namespace
    :show-inheritance:
