@@ -529,7 +529,18 @@ class NamedSignal(Signal):
         return f"{base[:-1]}; {self.name!r}>"  # noqa: E702
 
 
-class Namespace(dict):  # type: ignore[type-arg]
+if t.TYPE_CHECKING:
+
+    class PNamespaceSignal(t.Protocol):
+        def __call__(self, name: str, doc: str | None = None) -> NamedSignal: ...
+
+    # Python < 3.9
+    _NamespaceBase = dict[str, NamedSignal]  # type: ignore[misc]
+else:
+    _NamespaceBase = dict
+
+
+class Namespace(_NamespaceBase):
     """A dict mapping names to signals."""
 
     def signal(self, name: str, doc: str | None = None) -> NamedSignal:
@@ -539,11 +550,10 @@ class Namespace(dict):  # type: ignore[type-arg]
         :param name: The name of the signal.
         :param doc: The docstring of the signal.
         """
-        try:
-            return self[name]  # type: ignore[no-any-return]
-        except KeyError:
-            result = self.setdefault(name, NamedSignal(name, doc))
-            return result  # type: ignore[no-any-return]
+        if name not in self:
+            self[name] = NamedSignal(name, doc)
+
+        return self[name]
 
 
 class _WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
@@ -575,19 +585,18 @@ class _WeakNamespace(WeakValueDictionary):  # type: ignore[type-arg]
         :param name: The name of the signal.
         :param doc: The docstring of the signal.
         """
-        try:
-            return self[name]  # type: ignore[no-any-return]
-        except KeyError:
-            result = self.setdefault(name, NamedSignal(name, doc))
-            return result  # type: ignore[no-any-return]
+        if name not in self:
+            self[name] = NamedSignal(name, doc)
+
+        return self[name]  # type: ignore[no-any-return]
 
 
-default_namespace = Namespace()
+default_namespace: Namespace = Namespace()
 """A default :class:`Namespace` for creating named signals. :func:`signal`
 creates a :class:`NamedSignal` in this namespace.
 """
 
-signal = default_namespace.signal
+signal: PNamespaceSignal = default_namespace.signal
 """Return a :class:`NamedSignal` in :data:`default_namespace` with the given
 ``name``, creating it if required. Repeated calls with the same name return the
 same signal.
