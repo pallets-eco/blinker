@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import collections.abc as c
 import gc
 import sys
 import typing as t
@@ -18,7 +19,7 @@ def collect_acyclic_refs() -> None:
 class Sentinel(list):  # type: ignore[type-arg]
     """A signal receipt accumulator."""
 
-    def make_receiver(self, key: t.Any) -> t.Callable[..., t.Any]:
+    def make_receiver(self, key: t.Any) -> c.Callable[..., t.Any]:
         """Return a generic signal receiver function logging as *key*
 
         When connected to a signal, appends (key, sender, kw) to the Sentinel.
@@ -265,7 +266,7 @@ async def test_async_receiver() -> None:
     def received(sender: t.Any) -> None:
         sentinel.append(sender)
 
-    def wrapper(func: t.Callable[..., t.Any]) -> t.Callable[..., None]:
+    def wrapper(func: c.Callable[..., t.Any]) -> c.Callable[..., None]:
         async def inner(*args: t.Any, **kwargs: t.Any) -> None:
             func(*args, **kwargs)
 
