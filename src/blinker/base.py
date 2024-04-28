@@ -587,5 +587,6 @@ def __getattr__(name: str) -> t.Any:
             DeprecationWarning,
             stacklevel=2,
         )
+        return _WeakNamespace
 
     raise AttributeError(name)
