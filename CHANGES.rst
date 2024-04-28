@@ -5,6 +5,7 @@ Unreleased
 
 -   Restore identity handling for ``str`` and ``int`` senders. :pr:`148`
 -   Fix deprecated ``blinker.base.WeakNamespace`` import. :pr:`149`
+-   Fix deprecated ``blinker.base.receiver_connected import``. :pr:`153`
 -   Use types from ``collections.abc`` instead of ``typing``. :pr:`150`
 -   Fully specify exported types as reported by pyright. :pr:`152`
 
