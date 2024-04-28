@@ -1,7 +1,7 @@
 Version 1.8.1
 -------------
 
-Unreleased
+Released 2024-04-28
 
 -   Restore identity handling for ``str`` and ``int`` senders. :pr:`148`
 -   Fix deprecated ``blinker.base.WeakNamespace`` import. :pr:`149`
