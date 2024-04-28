@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import collections.abc as c
 import inspect
 import typing as t
 from weakref import ref
@@ -34,11 +35,11 @@ class Symbol:
     def __repr__(self) -> str:
         return self.name
 
-    def __getnewargs__(self) -> tuple[t.Any]:
+    def __getnewargs__(self) -> tuple[t.Any, ...]:
         return (self.name,)
 
 
-def make_id(obj: object) -> t.Hashable:
+def make_id(obj: object) -> c.Hashable:
     """Get a stable identifier for a receiver or sender, to be used as a dict
     key or in a set.
     """
@@ -56,7 +57,7 @@ def make_id(obj: object) -> t.Hashable:
     return id(obj)
 
 
-def make_ref(obj: T, callback: t.Callable[[ref[T]], None] | None = None) -> ref[T]:
+def make_ref(obj: T, callback: c.Callable[[ref[T]], None] | None = None) -> ref[T]:
     if inspect.ismethod(obj):
         return WeakMethod(obj, callback)  # type: ignore[arg-type, return-value]
 

@@ -4,7 +4,8 @@ Version 1.8.1
 Unreleased
 
 -   Restore identity handling for ``str`` and ``int`` senders. :pr:`148`
--   Fix deprecated `blinker.base.WeakNamespace` import. :pr:`149`
+-   Fix deprecated ``blinker.base.WeakNamespace`` import. :pr:`149`
+-   Use types from ``collections.abc`` instead of ``typing``. :pr:`150`
 
 
 Version 1.8.0

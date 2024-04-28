@@ -9,10 +9,12 @@ The :func:`signal` function provides singleton behavior for named signals.
 
 from __future__ import annotations
 
+import collections.abc as c
 import typing as t
 import warnings
 import weakref
 from collections import defaultdict
+from contextlib import AbstractContextManager
 from contextlib import contextmanager
 from functools import cached_property
 from inspect import iscoroutinefunction
@@ -25,15 +27,15 @@ from ._utilities import Symbol
 if t.TYPE_CHECKING:
     import typing_extensions as te
 
-    F = t.TypeVar("F", bound=t.Callable[..., t.Any])
+    F = t.TypeVar("F", bound=c.Callable[..., t.Any])
     T = t.TypeVar("T")
     P = te.ParamSpec("P")
 
     class PAsyncWrapper(t.Protocol):
-        def __call__(self, f: t.Callable[P, t.Awaitable[T]]) -> t.Callable[P, T]: ...
+        def __call__(self, f: c.Callable[P, c.Awaitable[T]]) -> c.Callable[P, T]: ...
 
     class PSyncWrapper(t.Protocol):
-        def __call__(self, f: t.Callable[P, T]) -> t.Callable[P, t.Awaitable[T]]: ...
+        def __call__(self, f: c.Callable[P, T]) -> c.Callable[P, c.Awaitable[T]]: ...
 
 
 ANY = Symbol("ANY")
@@ -98,7 +100,7 @@ class Signal:
         #: of the mapping is useful as an extremely efficient check to see if
         #: any receivers are connected to the signal.
         self.receivers: dict[
-            t.Any, weakref.ref[t.Callable[..., t.Any]] | t.Callable[..., t.Any]
+            t.Any, weakref.ref[c.Callable[..., t.Any]] | c.Callable[..., t.Any]
         ] = {}
         self.is_muted: bool = False
         self._by_receiver: dict[t.Any, set[t.Any]] = defaultdict(self.set_class)
@@ -166,7 +168,7 @@ class Signal:
 
         return receiver
 
-    def connect_via(self, sender: t.Any, weak: bool = False) -> t.Callable[[F], F]:
+    def connect_via(self, sender: t.Any, weak: bool = False) -> c.Callable[[F], F]:
         """Connect the decorated function as a receiver for *sender*.
 
         :param sender: Any object or :obj:`ANY`.  The decorated function
@@ -195,8 +197,8 @@ class Signal:
 
     @contextmanager
     def connected_to(
-        self, receiver: t.Callable[..., t.Any], sender: t.Any = ANY
-    ) -> t.Generator[None, None, None]:
+        self, receiver: c.Callable[..., t.Any], sender: t.Any = ANY
+    ) -> c.Generator[None, None, None]:
         """Execute a block with the signal temporarily connected to *receiver*.
 
         :param receiver: a receiver callable
@@ -224,7 +226,7 @@ class Signal:
             self.disconnect(receiver)
 
     @contextmanager
-    def muted(self) -> t.Generator[None, None, None]:
+    def muted(self) -> c.Generator[None, None, None]:
         """Context manager for temporarily disabling signal.
         Useful for test purposes.
         """
@@ -236,8 +238,8 @@ class Signal:
             self.is_muted = False
 
     def temporarily_connected_to(
-        self, receiver: t.Callable[..., t.Any], sender: t.Any = ANY
-    ) -> t.ContextManager[None]:
+        self, receiver: c.Callable[..., t.Any], sender: t.Any = ANY
+    ) -> AbstractContextManager[None]:
         """An alias for :meth:`connected_to`.
 
         :param receiver: a receiver callable
@@ -263,7 +265,7 @@ class Signal:
         *,
         _async_wrapper: PAsyncWrapper | None = None,
         **kwargs: t.Any,
-    ) -> list[tuple[t.Callable[..., t.Any], t.Any]]:
+    ) -> list[tuple[c.Callable[..., t.Any], t.Any]]:
         """Emit this signal on behalf of *sender*, passing on ``kwargs``.
 
         Returns a list of 2-tuples, pairing receivers with their return
@@ -301,7 +303,7 @@ class Signal:
         *,
         _sync_wrapper: PSyncWrapper | None = None,
         **kwargs: t.Any,
-    ) -> list[tuple[t.Callable[..., t.Any], t.Any]]:
+    ) -> list[tuple[c.Callable[..., t.Any], t.Any]]:
         """Emit this signal on behalf of *sender*, passing on ``kwargs``.
 
         Returns a list of 2-tuples, pairing receivers with their return
@@ -353,7 +355,7 @@ class Signal:
 
     def receivers_for(
         self, sender: t.Any
-    ) -> t.Generator[t.Callable[..., t.Any], None, None]:
+    ) -> c.Generator[c.Callable[..., t.Any], None, None]:
         """Iterate all live receivers listening for *sender*."""
         # TODO: test receivers_for(ANY)
         if not self.receivers:
@@ -383,7 +385,7 @@ class Signal:
             else:
                 yield receiver
 
-    def disconnect(self, receiver: t.Callable[..., t.Any], sender: t.Any = ANY) -> None:
+    def disconnect(self, receiver: c.Callable[..., t.Any], sender: t.Any = ANY) -> None:
         """Disconnect *receiver* from this signal's events.
 
         :param receiver: a previously :meth:`connected<connect>` callable
@@ -392,7 +394,7 @@ class Signal:
           to disconnect from all senders.  Defaults to ``ANY``.
 
         """
-        sender_id: t.Hashable
+        sender_id: c.Hashable
 
         if sender is ANY:
             sender_id = ANY_ID
@@ -408,7 +410,7 @@ class Signal:
         ):
             self.receiver_disconnected.send(self, receiver=receiver, sender=sender)
 
-    def _disconnect(self, receiver_id: t.Hashable, sender_id: t.Hashable) -> None:
+    def _disconnect(self, receiver_id: c.Hashable, sender_id: c.Hashable) -> None:
         if sender_id == ANY_ID:
             if self._by_receiver.pop(receiver_id, None) is not None:
                 for bucket in self._by_sender.values():
@@ -420,18 +422,18 @@ class Signal:
             self._by_receiver[receiver_id].discard(sender_id)
 
     def _make_cleanup_receiver(
-        self, receiver_id: t.Hashable
-    ) -> t.Callable[[weakref.ref[t.Callable[..., t.Any]]], None]:
+        self, receiver_id: c.Hashable
+    ) -> c.Callable[[weakref.ref[c.Callable[..., t.Any]]], None]:
         """Disconnect a receiver from all senders."""
 
-        def cleanup(ref: weakref.ref[t.Callable[..., t.Any]]) -> None:
+        def cleanup(ref: weakref.ref[c.Callable[..., t.Any]]) -> None:
             self._disconnect(receiver_id, ANY_ID)
 
         return cleanup
 
     def _make_cleanup_sender(
-        self, sender_id: t.Hashable
-    ) -> t.Callable[[weakref.ref[t.Any]], None]:
+        self, sender_id: c.Hashable
+    ) -> c.Callable[[weakref.ref[t.Any]], None]:
         """Disconnect all receivers from a sender."""
         assert sender_id != ANY_ID
 
