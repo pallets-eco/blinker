@@ -3,6 +3,8 @@ Version 1.8.1
 
 Unreleased
 
+-   Restore identity handling for ``str`` and ``int`` senders. :pr:`148`
+
 
 Version 1.8.0
 -------------
