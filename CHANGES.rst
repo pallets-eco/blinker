@@ -1,3 +1,12 @@
+Version 1.8.2
+-------------
+
+Unreleased
+
+-   Simplify type for ``_async_wrapper`` and ``_sync_wrapper`` arguments.
+    :pr:`156`
+
+
 Version 1.8.1
 -------------
 
