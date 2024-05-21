@@ -113,7 +113,7 @@ pytest-asyncio==0.23.6
     # via -r tests.txt
 pyyaml==6.0.1
     # via pre-commit
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r docs.txt
     #   sphinx
