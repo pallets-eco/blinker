@@ -1,3 +1,12 @@
+Version 1.9.0
+-------------
+
+Unreleased
+
+-   Remove previously deprecated ``__version__``, ``receiver_connected``,
+    ``Signal.temporarily_connected_to`` and ``WeakNamespace``. :pr:`172`
+
+
 Version 1.8.2
 -------------
 
