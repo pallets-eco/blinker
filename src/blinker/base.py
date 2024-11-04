@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections.abc as c
+import sys
 import typing as t
 import weakref
 from collections import defaultdict
@@ -403,7 +404,10 @@ class Signal:
         """
 
         def cleanup(ref: weakref.ref[c.Callable[..., t.Any]]) -> None:
-            self._disconnect(receiver_id, ANY_ID)
+            # If the interpreter is shutting down, disconnecting can result in a
+            # weird ignored exception. Don't call it in that case.
+            if not sys.is_finalizing():
+                self._disconnect(receiver_id, ANY_ID)
 
         return cleanup
 
