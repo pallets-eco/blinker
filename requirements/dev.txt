@@ -72,7 +72,7 @@ nodeenv==1.9.1
     #   -r typing.txt
     #   pre-commit
     #   pyright
-packaging==24.1
+packaging==24.2
     # via
     #   -r docs.txt
     #   -r tests.txt
@@ -102,7 +102,7 @@ pygments==2.18.0
     #   sphinx
 pyproject-api==1.8.0
     # via tox
-pyright==1.1.386
+pyright==1.1.388
     # via -r typing.txt
 pytest==8.3.3
     # via
@@ -168,7 +168,7 @@ urllib3==2.2.3
     # via
     #   -r docs.txt
     #   requests
-virtualenv==20.27.0
+virtualenv==20.27.1
     # via
     #   pre-commit
     #   tox
