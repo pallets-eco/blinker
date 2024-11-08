@@ -23,7 +23,7 @@ The core of Blinker is quite small but provides powerful features:
  - thread safety
 
 Blinker was written by Jason Kirtand and is provided under the MIT
-License. The library supports Python 3.8 or later; or PyPy3.9 or later.
+License. The library supports Python 3.9 or later.
 
 
 Decoupling With Named Signals
