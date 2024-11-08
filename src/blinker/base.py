@@ -12,8 +12,7 @@ from ._utilities import make_id
 from ._utilities import make_ref
 from ._utilities import Symbol
 
-if t.TYPE_CHECKING:
-    F = t.TypeVar("F", bound=c.Callable[..., t.Any])
+F = t.TypeVar("F", bound=c.Callable[..., t.Any])
 
 ANY = Symbol("ANY")
 """Symbol for "any sender"."""
@@ -477,18 +476,7 @@ class NamedSignal(Signal):
         return f"{base[:-1]}; {self.name!r}>"  # noqa: E702
 
 
-if t.TYPE_CHECKING:
-
-    class PNamespaceSignal(t.Protocol):
-        def __call__(self, name: str, doc: str | None = None) -> NamedSignal: ...
-
-    # Python < 3.9
-    _NamespaceBase = dict[str, NamedSignal]  # type: ignore[misc]
-else:
-    _NamespaceBase = dict
-
-
-class Namespace(_NamespaceBase):
+class Namespace(dict[str, NamedSignal]):
     """A dict mapping names to signals."""
 
     def signal(self, name: str, doc: str | None = None) -> NamedSignal:
@@ -504,12 +492,16 @@ class Namespace(_NamespaceBase):
         return self[name]
 
 
+class _PNamespaceSignal(t.Protocol):
+    def __call__(self, name: str, doc: str | None = None) -> NamedSignal: ...
+
+
 default_namespace: Namespace = Namespace()
 """A default :class:`Namespace` for creating named signals. :func:`signal`
 creates a :class:`NamedSignal` in this namespace.
 """
 
-signal: PNamespaceSignal = default_namespace.signal
+signal: _PNamespaceSignal = default_namespace.signal
 """Return a :class:`NamedSignal` in :data:`default_namespace` with the given
 ``name``, creating it if required. Repeated calls with the same name return the
 same signal.

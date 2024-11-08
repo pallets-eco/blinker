@@ -3,6 +3,7 @@ Version 1.9.0
 
 Unreleased
 
+-   Drop support for Python 3.8. :pr:`175`
 -   Remove previously deprecated ``__version__``, ``receiver_connected``,
     ``Signal.temporarily_connected_to`` and ``WeakNamespace``. :pr:`172`
 

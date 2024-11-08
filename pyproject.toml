@@ -12,7 +12,7 @@ classifiers = [
     "Programming Language :: Python",
     "Typing :: Typed",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.urls]
 Documentation = "https://blinker.readthedocs.io"
@@ -50,14 +50,14 @@ source = ["blinker", "tests"]
 source = ["src", "*/site-packages"]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 files = ["src/blinker", "tests"]
 show_error_codes = true
 pretty = true
 strict = true
 
 [tool.pyright]
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 include = ["src/blinker", "tests"]
 typeCheckingMode = "basic"
 
