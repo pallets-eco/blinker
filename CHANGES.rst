@@ -6,6 +6,8 @@ Unreleased
 -   Drop support for Python 3.8. :pr:`175`
 -   Remove previously deprecated ``__version__``, ``receiver_connected``,
     ``Signal.temporarily_connected_to`` and ``WeakNamespace``. :pr:`172`
+-   Skip weakref signal cleanup if the interpreter is shutting down.
+    :issue:`173`
 
 
 Version 1.8.2
