@@ -1,7 +1,7 @@
 Version 1.9.0
 -------------
 
-Unreleased
+Released 2024-11-08
 
 -   Drop support for Python 3.8. :pr:`175`
 -   Remove previously deprecated ``__version__``, ``receiver_connected``,
