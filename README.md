@@ -45,7 +45,7 @@ Round 3!
 ## Contributing
 Blinker uses [uv](https://docs.astral.sh/uv/) to manage its dependencies and developer environment. With the repository checked out, to install version of Python that Bilnker supports, create your virtual environment, and install the required dependencies, run:
 
-```bash
+```shell
 uv sync
 ```
 
@@ -53,13 +53,13 @@ This will install Blinker including development dependencies, such as those rela
 
 Tests are run with [pytest](https://docs.pytest.org/en/stable/). To just run the test suite with the default python installation, use:
 
-```bash
+```shell
 uv run pytest
 ```
 
 To run the test suite against any supported python versions, and also run other checks performed by CI, use:
 
-```bash
+```shell
 # run against python 3.13
 uv run tox -e py13
 
@@ -69,6 +69,6 @@ uv run tox
 
 This will create `.tox` directory taht contains a separate folder for each supported python version, thus you can activate any of them. For example to test the Blinker under python 3.11, run:
 
-```bash
+```shell
 ./.tox/py3.11/Scripts/activate
 ```
