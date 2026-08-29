@@ -51,7 +51,7 @@ typing = [
 ]
 
 [build-system]
-requires = ["flit_core<4"]
+requires = ["flit_core<5"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.module]
