@@ -18,6 +18,7 @@ requires-python = ">=3.9"
 Documentation = "https://blinker.readthedocs.io"
 Source = "https://github.com/pallets-eco/blinker/"
 Chat = "https://discord.gg/pallets"
+Changelog = "https://github.com/pallets-eco/blinker/CHANGES.rst"
 
 [dependency-groups]
 dev = [
